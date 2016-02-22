@@ -39,7 +39,7 @@ public class BackgroundScenery : MonoBehaviour
 		{
 			Vector3 position = mPool[count].transform.position;
 			float scale = mPool[count].transform.localScale.x;
-			position.y -= GameLogic.GameDeltaTime * GameLogic.GameSpeed * scale;
+			position.y -= GameLogic.GameDeltaTime * GameLogic.PlayerSpeed * scale;
 
 			if( position.y < GameLogic.ScreenHeight * -0.5f )
 			{

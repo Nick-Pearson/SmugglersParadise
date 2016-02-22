@@ -71,6 +71,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\BackgroundScenery.cs" />
     <Compile Include="Assets\Scripts\CameraUtils.cs" />
+    <Compile Include="Assets\Scripts\CloudFactory.cs" />
     <Compile Include="Assets\Scripts\CreateMesh.cs" />
     <Compile Include="Assets\Scripts\DifficultyCurve.cs" />
     <Compile Include="Assets\Scripts\EnemyFactory.cs" />
@@ -78,6 +79,7 @@
     <Compile Include="Assets\Scripts\GameInput.cs" />
     <Compile Include="Assets\Scripts\GameLogic.cs" />
     <Compile Include="Assets\Scripts\PlayerCharacter.cs" />
+    <Compile Include="Assets\Scripts\RelativeObject.cs" />
     <Compile Include="Assets\Scripts\Weapon.cs" />
   </ItemGroup>
   <ItemGroup>

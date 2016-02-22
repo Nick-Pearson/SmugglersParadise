@@ -11,7 +11,10 @@ public class GameLogic : MonoBehaviour
     [SerializeField] private float WaitTime = 1.0f;
 	[SerializeField] private int MaxMissedEnemies = 3; 
 
-	private enum State { TapToStart, Game, GameOver };
+	public enum State { TapToStart, Game, GameOver };
+
+    public delegate void OnGameStateChange(State s);
+    public static event OnGameStateChange OnStateChange;
 
 	private List<GameObject> mActiveEnemies;
 	private DifficultyCurve mCurrentDifficulty;
@@ -108,7 +111,7 @@ public class GameLogic : MonoBehaviour
 						mCurrentDifficulty.Stop();
                         mGameOverTime = Time.timeSinceLevelLoad;
 						mGameStatus = State.GameOver;
-						GameText.text = string.Format( "You Dead!\nTotal Distance: {0:0.0} m", mDistanceTravelled );
+						GameText.text = string.Format( "You Died!\nTotal Distance: {0:0.0} m", mDistanceTravelled );
 					}
 					else
 					{
@@ -136,7 +139,7 @@ public class GameLogic : MonoBehaviour
 				mCurrentDifficulty.Stop();
                 mGameOverTime = Time.timeSinceLevelLoad;
                 mGameStatus = State.GameOver;
-				GameText.text = string.Format( "You Been Invaded!\nTotal Distance: {0:0.0} m", mDistanceTravelled );
+				GameText.text = string.Format( "You've Been Invaded!\nTotal Distance: {0:0.0} m", mDistanceTravelled );
 			}
 
 			for( int count = 0; count < oldEnemys.Count; count++ )
@@ -163,7 +166,9 @@ public class GameLogic : MonoBehaviour
 		case State.TapToStart:
 			Paused = false;
 			mGameStatus = State.Game;
-			break;
+
+            OnStateChange(mGameStatus);
+            break;
 		case State.Game:
 			mPlayerCharacter.Fire();
 			break;
@@ -173,7 +178,8 @@ public class GameLogic : MonoBehaviour
 			    Reset();
 			    GameText.text = "Tap to Start";
 			    mGameStatus = State.TapToStart;
-			}
+            }
+            OnStateChange(mGameStatus);
             break;
 		}
 	}
