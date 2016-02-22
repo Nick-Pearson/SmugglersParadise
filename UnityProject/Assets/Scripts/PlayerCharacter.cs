@@ -17,11 +17,9 @@ public class PlayerCharacter : MonoBehaviour
 	void Start() 
 	{
 		mColumnSize = ( GameLogic.ScreenHeight * GameplayCamera.aspect * 0.8f ) / 3;
-
-		Vector3 position = transform.position;
-		position.y = GameLogic.ScreenHeight * -0.35f;
-		mStartY = position.y; 
-		transform.position = position;
+        
+        //make start position absolute
+		mStartY = transform.position.y; 
 
 		// Look for the gun
 		mGun = GetComponentInChildren<Weapon>();
