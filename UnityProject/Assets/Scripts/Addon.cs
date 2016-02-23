@@ -31,8 +31,8 @@ public class Mk1Engine : Engine
     public override void applyBuffs(PlayerCharacter player)
     {
         player.MaxThrustForce += 8500;
-        player.PlayerMaxFuel += 800;
-        player.PlayerMaxFuelBurn += 100f;
+        player.PlayerMaxFuel += 400;
+        player.PlayerMaxFuelBurn += 50f;
     }
 
     public override int getMass() {  return 80; }

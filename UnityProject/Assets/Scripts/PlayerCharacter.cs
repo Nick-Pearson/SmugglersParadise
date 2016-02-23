@@ -6,6 +6,8 @@ public class PlayerCharacter : MonoBehaviour
 {
 	[SerializeField] private Camera GameplayCamera;
 	[SerializeField] private float FireOffset;
+    [SerializeField] private Transform[] EngineEffects;
+    [SerializeField] private Vector2 DragCoefficient;
 
     //component references
 	private Weapon mGun;
@@ -18,6 +20,7 @@ public class PlayerCharacter : MonoBehaviour
 
     //physics variables
     private Vector2 mVelocity;
+    [SerializeField]
     private float mGravityScale;
     [SerializeField]
     private Vector2 mVirtualPosition;
@@ -119,7 +122,10 @@ public class PlayerCharacter : MonoBehaviour
         // TODO: Fix arbitrary starting values
         PlayerFuelAmount = PlayerMaxFuel;
         PlayerThrustPercentage = 0.0f;
-        ShipCargoMass = 10;
+        ShipCargoMass = ShipMaxCargo;
+
+        //set initial throttle to 0%
+        UIManager.UISystem.ChangeThrottleValue(0);
 
         //signup for game state changes
         GameLogic.OnStateChange += OnGameStateChange;
@@ -128,13 +134,13 @@ public class PlayerCharacter : MonoBehaviour
     void FixedUpdate()
     {
         //calculate the thrust we are using
-        float totalThrust = PlayerFuelAmount == 0 ? 0 : PlayerThrustPercentage * MaxThrustForce * Time.fixedDeltaTime; //total thrust in kN
+        float totalThrust = PlayerFuelAmount == 0 ? 0 : PlayerThrustPercentage * MaxThrustForce * GameLogic.GameFixedDeltaTime; //total thrust in kN
         Vector2 appliedThrust = new Vector2(mDirection * Mathf.Sin(SHIP_TILT_FACTOR * Mathf.PI / 180) * totalThrust, Mathf.Cos(SHIP_TILT_FACTOR * (Mathf.PI / 180) * Mathf.Abs(mDirection)) * totalThrust);
         
         mGravityScale = 1-Mathf.Clamp01(Mathf.Pow(mVirtualPosition.y,2)/16900); //x^2 falloff of gravity
 
         //thrust minus gravity
-        Vector2 netForce = new Vector2(appliedThrust.x, appliedThrust.y - (GRAVITATIONAL_FORCE * mGravityScale * PlayerMass * Time.fixedDeltaTime));
+        Vector2 netForce = new Vector2(appliedThrust.x, appliedThrust.y - (GRAVITATIONAL_FORCE * mGravityScale * PlayerMass * GameLogic.GameFixedDeltaTime));
         Vector2 netAcceleration = new Vector2(netForce.x / PlayerMass, netForce.y / PlayerMass);
 
         //basic collision detection on planet
@@ -147,11 +153,15 @@ public class PlayerCharacter : MonoBehaviour
         else
         {
             mVelocity += netAcceleration;
-            mVirtualPosition += mVelocity * Time.fixedDeltaTime;
-            transform.Translate(mVelocity.x * Time.fixedDeltaTime, 0, 0);
+            mVirtualPosition += mVelocity * GameLogic.GameFixedDeltaTime;
+            transform.Translate(mVelocity.x * GameLogic.GameFixedDeltaTime, 0, 0);
         }
 
+        //notify the UI of our new velocity
         UIManager.UISystem.ChangeSpeedValue(mVelocity.y);
+
+        //finally apply drag
+        mVelocity = new Vector2((1-(DragCoefficient.x*GameLogic.GameFixedDeltaTime)) * mVelocity.x, (1 - (DragCoefficient.y * GameLogic.GameFixedDeltaTime)) * mVelocity.y);
     }
 
     void Update()
@@ -164,7 +174,7 @@ public class PlayerCharacter : MonoBehaviour
         UIManager.UISystem.ChangeFuelValue(PlayerFuelAmount / PlayerMaxFuel);
 
         //update camera position if necassary
-        if (mVirtualPosition.y < 17)
+        if (mVirtualPosition.y < 8)
             GameplayCamera.transform.Translate(0, -mVelocity.y * GameLogic.GameDeltaTime, 0);
     }
 
@@ -173,7 +183,6 @@ public class PlayerCharacter : MonoBehaviour
         if(s == GameLogic.State.Game)
         {
             mGameStartTime = Time.time;
-            UIManager.UISystem.ChangeThrottleValue(20);
         }
     }
 
@@ -217,6 +226,11 @@ public class PlayerCharacter : MonoBehaviour
     public void UpdateThrottle(float val)
     {
         PlayerThrustPercentage = val;
+
+        foreach(Transform t in EngineEffects)
+        {
+            t.localScale = new Vector3(t.localScale.x, val, t.localScale.z);
+        }
     }
 
     private void UpdateRotationTarget()

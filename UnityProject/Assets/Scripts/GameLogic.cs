@@ -30,6 +30,7 @@ public class GameLogic : MonoBehaviour
 	private State mGameStatus;
 
 	public static float GameDeltaTime { get; private set; }
+    public static float GameFixedDeltaTime { get; private set; }
 	public static float GameSpeed { get { return DifficultyCurve.GameSpeed; } }
 	public float PlayerSpeed { get { return mPlayerCharacter.PlayerSpeedY; } }
 	public static float BulletSpeed { get { return DifficultyCurve.BulletSpeed; } }
@@ -69,11 +70,15 @@ public class GameLogic : MonoBehaviour
             UIManager.UISystem.ChangeStartText(i + "");
             yield return new WaitForSeconds(1.0f);
         }
-
-        UIManager.UISystem.ChangeStartText("");
+        
         Paused = false;
         mGameStatus = State.Game;
         OnStateChange(mGameStatus);
+    }
+
+    void FixedUpdate()
+    {
+        GameFixedDeltaTime = Paused ? 0.0f : Time.fixedDeltaTime;
     }
 
 	void Update()
@@ -83,7 +88,6 @@ public class GameLogic : MonoBehaviour
 		if( mGameStatus == State.Game )
 		{
 			mDistanceTravelled += PlayerSpeed * GameDeltaTime;
-			UIManager.UISystem.ChangeStartText(string.Format( "Distance: {0:0.0} m", mDistanceTravelled ));
 
 			int enemies = mCurrentDifficulty.SpawnCount();
 			if( enemies == 1 ) 
@@ -138,8 +142,8 @@ public class GameLogic : MonoBehaviour
 						mCurrentDifficulty.Stop();
                         mGameOverTime = Time.timeSinceLevelLoad;
 						mGameStatus = State.GameOver;
-						UIManager.UISystem.ChangeStartText(string.Format( "You Died!\nTotal Distance: {0:0.0} m", mDistanceTravelled ));
-					}
+                        Paused = true;
+                    }
 					else
 					{
 						for( int bullet = 0; bullet < mPlayerCharacter.Weapon.ActiveBullets.Count; bullet++ )
@@ -166,7 +170,7 @@ public class GameLogic : MonoBehaviour
 				mCurrentDifficulty.Stop();
                 mGameOverTime = Time.timeSinceLevelLoad;
                 mGameStatus = State.GameOver;
-				UIManager.UISystem.ChangeStartText(string.Format( "You've Been Invaded!\nTotal Distance: {0:0.0} m", mDistanceTravelled ));
+                Paused = true;
 			}
 
 			for( int count = 0; count < oldEnemys.Count; count++ )
