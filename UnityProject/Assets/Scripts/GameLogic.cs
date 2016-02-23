@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class GameLogic : MonoBehaviour 
 {
@@ -9,8 +10,6 @@ public class GameLogic : MonoBehaviour
         public float atmosphereSize;
         public float gravityScale; //wrt earths gravity
     }
-
-	[SerializeField] private TextMesh GameText;
 	[SerializeField] private Camera GameplayCamera;
 	[SerializeField] private float PlayerKillDistance = 10.0f;  
 	[SerializeField] private float BulletKillDistance = 10.0f;
@@ -59,7 +58,23 @@ public class GameLogic : MonoBehaviour
         //TODO: Fix aribtrary starting values
         Origin.atmosphereSize = 100;
         Destination.atmosphereSize = 200;
+
+        StartCoroutine(StartSequence());
 	}
+
+    IEnumerator StartSequence()
+    {
+        for(int i = 3; i > 0; i--)
+        {
+            UIManager.UISystem.ChangeStartText(i + "");
+            yield return new WaitForSeconds(1.0f);
+        }
+
+        UIManager.UISystem.ChangeStartText("");
+        Paused = false;
+        mGameStatus = State.Game;
+        OnStateChange(mGameStatus);
+    }
 
 	void Update()
 	{
@@ -67,8 +82,8 @@ public class GameLogic : MonoBehaviour
 
 		if( mGameStatus == State.Game )
 		{
-			mDistanceTravelled += GameSpeed * GameDeltaTime;
-			GameText.text = string.Format( "Distance: {0:0.0} m", mDistanceTravelled );
+			mDistanceTravelled += PlayerSpeed * GameDeltaTime;
+			UIManager.UISystem.ChangeStartText(string.Format( "Distance: {0:0.0} m", mDistanceTravelled ));
 
 			int enemies = mCurrentDifficulty.SpawnCount();
 			if( enemies == 1 ) 
@@ -123,7 +138,7 @@ public class GameLogic : MonoBehaviour
 						mCurrentDifficulty.Stop();
                         mGameOverTime = Time.timeSinceLevelLoad;
 						mGameStatus = State.GameOver;
-						GameText.text = string.Format( "You Died!\nTotal Distance: {0:0.0} m", mDistanceTravelled );
+						UIManager.UISystem.ChangeStartText(string.Format( "You Died!\nTotal Distance: {0:0.0} m", mDistanceTravelled ));
 					}
 					else
 					{
@@ -151,7 +166,7 @@ public class GameLogic : MonoBehaviour
 				mCurrentDifficulty.Stop();
                 mGameOverTime = Time.timeSinceLevelLoad;
                 mGameStatus = State.GameOver;
-				GameText.text = string.Format( "You've Been Invaded!\nTotal Distance: {0:0.0} m", mDistanceTravelled );
+				UIManager.UISystem.ChangeStartText(string.Format( "You've Been Invaded!\nTotal Distance: {0:0.0} m", mDistanceTravelled ));
 			}
 
 			for( int count = 0; count < oldEnemys.Count; count++ )
@@ -176,10 +191,7 @@ public class GameLogic : MonoBehaviour
 		switch( mGameStatus )
 		{
 		case State.TapToStart:
-			Paused = false;
-			mGameStatus = State.Game;
-
-            OnStateChange(mGameStatus);
+            //Do Nothing
             break;
 		case State.Game:
 			mPlayerCharacter.Fire();
@@ -188,7 +200,7 @@ public class GameLogic : MonoBehaviour
             if (Time.timeSinceLevelLoad - mGameOverTime > WaitTime)
             { 
 			    Reset();
-			    GameText.text = "Tap to Start";
+			    UIManager.UISystem.ChangeStartText("Tap to Start");
 			    mGameStatus = State.TapToStart;
             }
             OnStateChange(mGameStatus);

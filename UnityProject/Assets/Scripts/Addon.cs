@@ -32,7 +32,7 @@ public class Mk1Engine : Engine
     {
         player.MaxThrustForce += 8500;
         player.PlayerMaxFuel += 800;
-        player.PlayerMaxFuelBurn += 200f;
+        player.PlayerMaxFuelBurn += 100f;
     }
 
     public override int getMass() {  return 80; }

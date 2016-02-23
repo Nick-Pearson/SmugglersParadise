@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class PlayerCharacter : MonoBehaviour 
 {
@@ -16,9 +17,7 @@ public class PlayerCharacter : MonoBehaviour
     private Ship addonManager = new Ship(new Mk1FlightDeck(), new Mk1Cargo(), new RearEngineMount(new Mk1Engine(), new Mk1Engine()));
 
     //physics variables
-    [SerializeField]
     private Vector2 mVelocity;
-    [SerializeField]
     private float mGravityScale;
     [SerializeField]
     private Vector2 mVirtualPosition;
@@ -120,7 +119,7 @@ public class PlayerCharacter : MonoBehaviour
         // TODO: Fix arbitrary starting values
         PlayerFuelAmount = PlayerMaxFuel;
         PlayerThrustPercentage = 0.0f;
-        ShipCargoMass = ShipMaxCargo;
+        ShipCargoMass = 10;
 
         //signup for game state changes
         GameLogic.OnStateChange += OnGameStateChange;
@@ -151,6 +150,8 @@ public class PlayerCharacter : MonoBehaviour
             mVirtualPosition += mVelocity * Time.fixedDeltaTime;
             transform.Translate(mVelocity.x * Time.fixedDeltaTime, 0, 0);
         }
+
+        UIManager.UISystem.ChangeSpeedValue(mVelocity.y);
     }
 
     void Update()
@@ -160,6 +161,11 @@ public class PlayerCharacter : MonoBehaviour
 
         //burn our fuel
         PlayerFuelAmount -= PlayerMaxFuelBurn * PlayerThrustPercentage * GameLogic.GameDeltaTime;
+        UIManager.UISystem.ChangeFuelValue(PlayerFuelAmount / PlayerMaxFuel);
+
+        //update camera position if necassary
+        if (mVirtualPosition.y < 17)
+            GameplayCamera.transform.Translate(0, -mVelocity.y * GameLogic.GameDeltaTime, 0);
     }
 
     private void OnGameStateChange(GameLogic.State s)
@@ -167,7 +173,7 @@ public class PlayerCharacter : MonoBehaviour
         if(s == GameLogic.State.Game)
         {
             mGameStartTime = Time.time;
-            PlayerThrustPercentage = 1.0f;
+            UIManager.UISystem.ChangeThrottleValue(20);
         }
     }
 
@@ -206,6 +212,11 @@ public class PlayerCharacter : MonoBehaviour
             mDirection = 1;
 
         UpdateRotationTarget();
+    }
+
+    public void UpdateThrottle(float val)
+    {
+        PlayerThrustPercentage = val;
     }
 
     private void UpdateRotationTarget()
