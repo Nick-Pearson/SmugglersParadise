@@ -12,14 +12,18 @@ public class PlanetFactory : MonoBehaviour {
 
     private GameObject[] mCloudObjects;
 
+    private PlayerCharacter mPlayer;
+
     void Start()
     {
+        mPlayer = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerCharacter>();
+
         GameObject p0 = Instantiate(PlanetPrefab);
         p0.name = "Origin";
         GameObject p1 = Instantiate(PlanetPrefab);
         p1.name = "Destination";
-        p1.transform.Rotate(0, 0, 180);
         p1.transform.Translate(0, 5000, 0); //TODO: Fix aribtrary values
+        p1.transform.Rotate(0, 0, 180);
 
         SetupPlanet(p0, GameLogic.Origin);
         SetupPlanet(p1, GameLogic.Destination);
@@ -62,6 +66,9 @@ public class PlanetFactory : MonoBehaviour {
 
     void Update()
     {
+        if (mPlayer.PlayerPosition.y > GameLogic.ScreenHeight)
+            return;
+
         foreach(GameObject go in mCloudObjects)
         {
             go.transform.Translate(GameLogic.GameDeltaTime * go.transform.localScale.x, 0, 0);

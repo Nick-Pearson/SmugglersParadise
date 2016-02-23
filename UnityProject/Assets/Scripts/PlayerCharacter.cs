@@ -54,6 +54,10 @@ public class PlayerCharacter : MonoBehaviour
             return mVelocity;
         }
     }
+    public Vector2 PlayerPosition
+    {
+        get { return mVirtualPosition; }
+    }
     public float PlayerMass //total mass of the ship in tons
     {
         get

@@ -24,7 +24,7 @@ public class RelativeObject : MonoBehaviour {
             Vector3 relativeVelocity = Velocity * scale * GameLogic.GameDeltaTime;
             relativeVelocity.y -= mGameLogic.PlayerSpeed * scale * GameLogic.GameDeltaTime;
 
-            transform.Translate(relativeVelocity);
+            transform.Translate(relativeVelocity * Mathf.Cos(transform.rotation.eulerAngles.z));
         }
 	}
 }
