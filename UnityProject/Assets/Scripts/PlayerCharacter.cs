@@ -131,7 +131,7 @@ public class PlayerCharacter : MonoBehaviour
         //calculate the thrust we are using
         float totalThrust = PlayerFuelAmount == 0 ? 0 :PlayerThrustPercentage * MaxThrustForce * Time.fixedDeltaTime; //total thrust in kN
         Vector2 appliedThrust = new Vector2(mDirection * Mathf.Sin(SHIP_TILT_FACTOR) * totalThrust, Mathf.Cos(SHIP_TILT_FACTOR * Mathf.Abs(mDirection)) * totalThrust);
-        Debug.Log(appliedThrust);
+        
         //update the physics component
         mPhysics.AddForce(appliedThrust);
         mPhysics.mass = PlayerMass;
