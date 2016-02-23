@@ -13,6 +13,7 @@ public class RelativeObject : MonoBehaviour {
     void Start()
     {
         mGameLogic = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameLogic>();
+        Move = true;
     }
 
 	// Update is called once per frame

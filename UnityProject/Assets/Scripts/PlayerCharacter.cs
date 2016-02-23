@@ -4,19 +4,25 @@ using System.Collections;
 public class PlayerCharacter : MonoBehaviour 
 {
 	[SerializeField] private Camera GameplayCamera;
-    [SerializeField] private RelativeObject PlanetGraphics;
 	[SerializeField] private float FireOffset;
 
     //component references
 	private Weapon mGun;
-    private Rigidbody2D mPhysics;
-
-	private float mStartY;
 
     private float mGameStartTime;
 
-    //fill with default addons for now
+    //place to store references to our addons
+    //TODO: fill with default addons for now 
     private Ship addonManager = new Ship(new Mk1FlightDeck(), new Mk1Cargo(), new RearEngineMount(new Mk1Engine(), new Mk1Engine()));
+
+    //physics variables
+    [SerializeField]
+    private Vector2 mVelocity;
+    [SerializeField]
+    private float mGravityScale;
+    [SerializeField]
+    private Vector2 mVirtualPosition;
+    private const float GRAVITATIONAL_FORCE = 9.81f;
 
     //Rotation variables
     private int mDirection; // 0 for ahead, 1 for right, -1 for left
@@ -27,7 +33,7 @@ public class PlayerCharacter : MonoBehaviour
     private Quaternion mRightRotation;
     private float mRotateTime = 0; //timer for smooth rotation
     private const float ROTATION_SPEED = 4; //speed that we turn
-    private const int SHIP_TILT_FACTOR = 10; //tilt when turning in degrees
+    private const int SHIP_TILT_FACTOR = 5; //tilt when turning in degrees
 
 	public Weapon Weapon { get { return mGun; } }
 
@@ -45,7 +51,7 @@ public class PlayerCharacter : MonoBehaviour
     }
     public Vector2 PlayerVelocity {
         get {
-            return mPhysics.velocity;
+            return mVelocity;
         }
     }
     public float PlayerMass //total mass of the ship in tons
@@ -87,12 +93,8 @@ public class PlayerCharacter : MonoBehaviour
 
     void Start() 
 	{
-        //make start position absolute
-		mStartY = transform.position.y; 
-
 		// Look for the gun
 		mGun = GetComponentInChildren<Weapon>();
-        mPhysics = GetComponent<Rigidbody2D>();
         
         mDirection = 0;
 
@@ -111,16 +113,10 @@ public class PlayerCharacter : MonoBehaviour
         //apply the buffs from our addons
         addonManager.ApplyChanges(this);
 
-        //FIXME arbitrary starting values
+        // TODO: Fix arbitrary starting values
         PlayerFuelAmount = PlayerMaxFuel;
-        PlayerThrustPercentage = 1.0f;
+        PlayerThrustPercentage = 0.0f;
         ShipCargoMass = ShipMaxCargo;
-
-        mPhysics.mass = PlayerMass;
-
-
-        //Ensure the planet doesnt start moving without us
-        PlanetGraphics.Move = false;
 
         //signup for game state changes
         GameLogic.OnStateChange += OnGameStateChange;
@@ -129,13 +125,28 @@ public class PlayerCharacter : MonoBehaviour
     void FixedUpdate()
     {
         //calculate the thrust we are using
-        float totalThrust = PlayerFuelAmount == 0 ? 0 :PlayerThrustPercentage * MaxThrustForce * Time.fixedDeltaTime; //total thrust in kN
-        Vector2 appliedThrust = new Vector2(mDirection * Mathf.Sin(SHIP_TILT_FACTOR) * totalThrust, Mathf.Cos(SHIP_TILT_FACTOR * Mathf.Abs(mDirection)) * totalThrust);
+        float totalThrust = PlayerFuelAmount == 0 ? 0 : PlayerThrustPercentage * MaxThrustForce * Time.fixedDeltaTime; //total thrust in kN
+        Vector2 appliedThrust = new Vector2(mDirection * Mathf.Sin(SHIP_TILT_FACTOR * Mathf.PI / 180) * totalThrust, Mathf.Cos(SHIP_TILT_FACTOR * (Mathf.PI / 180) * Mathf.Abs(mDirection)) * totalThrust);
         
-        //update the physics component
-        mPhysics.AddForce(appliedThrust);
-        mPhysics.mass = PlayerMass;
-        mPhysics.gravityScale = 1-Mathf.Clamp01(Mathf.Pow(transform.position.y - mStartY,2)/16900); //x^2 falloff of gravity
+        mGravityScale = 1-Mathf.Clamp01(Mathf.Pow(mVirtualPosition.y,2)/16900); //x^2 falloff of gravity
+
+        //thrust minus gravity
+        Vector2 netForce = new Vector2(appliedThrust.x, appliedThrust.y - (GRAVITATIONAL_FORCE * mGravityScale * PlayerMass * Time.fixedDeltaTime));
+        Vector2 netAcceleration = new Vector2(netForce.x / PlayerMass, netForce.y / PlayerMass);
+
+        //basic collision detection on planet
+        //Will this move put us bellow the ground
+        if (mVirtualPosition.y + mVelocity.y + netAcceleration.y <= 0.0f)
+        {
+            mVelocity.y = -mVirtualPosition.y; //velocity is the exact distance to ground
+            mVirtualPosition.y = 0;
+        }
+        else
+        {
+            mVelocity += netAcceleration;
+            mVirtualPosition += mVelocity * Time.fixedDeltaTime;
+            transform.Translate(mVelocity.x * Time.fixedDeltaTime, 0, 0);
+        }
     }
 
     void Update()
@@ -152,13 +163,14 @@ public class PlayerCharacter : MonoBehaviour
         if(s == GameLogic.State.Game)
         {
             mGameStartTime = Time.time;
+            PlayerThrustPercentage = 1.0f;
         }
     }
 
 
 	public void Reset()
 	{
-		Vector3 position = new Vector3( 0.0f, mStartY, 0.0f );
+		Vector3 position = new Vector3( 0.0f, 0.0f, 0.0f );
 		transform.position = position;
 	}
 

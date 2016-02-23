@@ -4,6 +4,12 @@ using System.Collections.Generic;
 
 public class GameLogic : MonoBehaviour 
 {
+    public struct Planet
+    {
+        public float atmosphereSize;
+        public float gravityScale; //wrt earths gravity
+    }
+
 	[SerializeField] private TextMesh GameText;
 	[SerializeField] private Camera GameplayCamera;
 	[SerializeField] private float PlayerKillDistance = 10.0f;  
@@ -31,8 +37,10 @@ public class GameLogic : MonoBehaviour
 	public static float ScreenBounds { get; private set; }
 	public static float ScreenHeight { get; private set; }
 	public static bool Paused { get; private set; }
+    public static Planet Origin;
+    public static Planet Destination;
 
-	void Awake()
+    void Awake()
 	{
 		float distance = transform.position.z - GameplayCamera.transform.position.z;
 		ScreenHeight = CameraUtils.FrustumHeightAtDistance( distance, GameplayCamera.fieldOfView );
@@ -47,6 +55,10 @@ public class GameLogic : MonoBehaviour
         mGameOverTime = Time.timeSinceLevelLoad;
 		mMissedEnemies = 0;
 		Paused = false;
+
+        //TODO: Fix aribtrary starting values
+        Origin.atmosphereSize = 100;
+        Destination.atmosphereSize = 200;
 	}
 
 	void Update()

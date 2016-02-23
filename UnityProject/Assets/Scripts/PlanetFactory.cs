@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class CloudFactory : MonoBehaviour {
+public class PlanetFactory : MonoBehaviour {
+    [SerializeField] private GameObject PlanetPrefab;
     [SerializeField] private Sprite[] Clouds;
     [Range(1, 100)]
     [SerializeField] private int CloudPoolSize;
@@ -13,19 +14,38 @@ public class CloudFactory : MonoBehaviour {
 
     void Start()
     {
+        GameObject p0 = Instantiate(PlanetPrefab);
+        p0.name = "Origin";
+        GameObject p1 = Instantiate(PlanetPrefab);
+        p1.name = "Destination";
+        p1.transform.Rotate(0, 0, 180);
+        p1.transform.Translate(0, 5000, 0); //TODO: Fix aribtrary values
+
+        SetupPlanet(p0, GameLogic.Origin);
+        SetupPlanet(p1, GameLogic.Destination);
+
         mCloudObjects = new GameObject[CloudPoolSize];
 
         for(int i = 0; i < CloudPoolSize; i++)
         {
             mCloudObjects[i] = new GameObject("Cloud_" + i);
-            mCloudObjects[i].transform.parent = transform;
+            mCloudObjects[i].transform.parent = p0.transform;
             mCloudObjects[i].transform.position = new Vector3(Random.Range(-GameLogic.ScreenBounds, GameLogic.ScreenBounds), Random.Range(CloudFloor, CloudCeiling), 0);
-            SpriteRenderer renderer = mCloudObjects[i].AddComponent<SpriteRenderer>();
-            GenerateCloud(mCloudObjects[i]);
+            mCloudObjects[i].AddComponent<SpriteRenderer>();
+            SetupCloud(mCloudObjects[i]);
         }
     }
 
-    void GenerateCloud(GameObject go)
+    void SetupPlanet(GameObject go, GameLogic.Planet p)
+    {
+        Transform atmos_a = go.transform.FindChild("atmosphere_a");
+        Transform atmos_w = go.transform.FindChild("atmosphere_w");
+        float scale = atmos_a.localScale.y * p.atmosphereSize;
+        atmos_a.localScale = new Vector3(1,scale,1);
+        atmos_w.localScale = new Vector3(1, scale, 1);
+    }
+
+    void SetupCloud(GameObject go)
     {
         float scale = Random.Range(0.2f, 1.0f);
         go.transform.localScale = new Vector3(scale, scale, scale);
@@ -49,7 +69,7 @@ public class CloudFactory : MonoBehaviour {
             if(go.transform.position.x > GameLogic.ScreenBounds * 1.5f)
             {
                 go.transform.position = new Vector3(GameLogic.ScreenBounds * -1.5f, Random.Range(CloudFloor, CloudCeiling), 0);
-                GenerateCloud(go);
+                SetupCloud(go);
             }
         }
     }
