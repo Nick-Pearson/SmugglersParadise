@@ -6,8 +6,6 @@ public class DifficultyCurve : MonoBehaviour
 {
 	[SerializeField] private float GameStartSpeed = 10f;
 	[SerializeField] private float GameSpeedRamp = 0.1f;
-	[SerializeField] private float PlayerStartSpeed = 20f;
-	[SerializeField] private float PlayerSpeedRamp = 0.1f;
 	[SerializeField] private float BulletStartSpeed = 20f;
 	[SerializeField] private float BulletSpeedRamp = 0.1f;
 	[SerializeField] private float TimeBetweenRows = 5.0f;
@@ -20,7 +18,6 @@ public class DifficultyCurve : MonoBehaviour
 	private int mCurrentWave;
 
 	public static float GameSpeed { get; private set; }
-	public static float PlayerSpeed { get; private set; }
 	public static float BulletSpeed { get; private set; }
 
 	void Awake()
@@ -48,7 +45,6 @@ public class DifficultyCurve : MonoBehaviour
 	void Start()
 	{
 		GameSpeed = GameStartSpeed;
-		PlayerSpeed = PlayerStartSpeed;
 		BulletSpeed = BulletStartSpeed;
 	}
 
@@ -74,7 +70,6 @@ public class DifficultyCurve : MonoBehaviour
 				if( ( mCurrentWave + 1 ) < mWaves.Length )
 				{
 					GameSpeed += GameSpeedRamp;
-					PlayerSpeed += PlayerSpeedRamp;
 					BulletSpeed += BulletSpeedRamp;
 					mCurrentWave++;
 				}
@@ -89,14 +84,12 @@ public class DifficultyCurve : MonoBehaviour
 	public void Stop()
 	{
 		GameSpeed = 0.0f;
-		PlayerSpeed = 0.0f;
 		BulletSpeed = 0.0f;
 	}
 
 	public void Reset()
 	{
 		GameSpeed = GameStartSpeed;
-		PlayerSpeed = PlayerStartSpeed;
 		BulletSpeed = BulletStartSpeed;
 		mTimeToNextRow = TimeBetweenRows;
 		mTimeToNextWave = TimeBetweenWaves;

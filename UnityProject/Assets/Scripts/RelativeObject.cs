@@ -8,13 +8,20 @@ public class RelativeObject : MonoBehaviour {
 
     public bool Move { private get; set; }
 
+    private GameLogic mGameLogic;
+
+    void Start()
+    {
+        mGameLogic = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameLogic>();
+    }
+
 	// Update is called once per frame
 	void Update () {
         if (Move)
         {
             //calculate our velocity relative to the player and move us by this amount
             Vector3 relativeVelocity = Velocity * scale * GameLogic.GameDeltaTime;
-            relativeVelocity.y -= GameLogic.PlayerSpeed * scale * GameLogic.GameDeltaTime;
+            relativeVelocity.y -= mGameLogic.PlayerSpeed * scale * GameLogic.GameDeltaTime;
 
             transform.Translate(relativeVelocity);
         }

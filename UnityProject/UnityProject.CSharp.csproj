@@ -69,6 +69,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Addon.cs" />
     <Compile Include="Assets\Scripts\BackgroundScenery.cs" />
     <Compile Include="Assets\Scripts\CameraUtils.cs" />
     <Compile Include="Assets\Scripts\CloudFactory.cs" />

@@ -11,9 +11,11 @@ public class BackgroundScenery : MonoBehaviour
 	[SerializeField] private int SceneryPoolSize = 100; 
 	
 	private GameObject [] mPool;
+    private GameLogic mGameLogic;
 	
 	void Start()
 	{
+        mGameLogic = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameLogic>();
 		// Create the scenery and position
 		mPool = new GameObject[SceneryPoolSize];
 		for( int count = 0; count < SceneryPoolSize; count++ )
@@ -39,7 +41,7 @@ public class BackgroundScenery : MonoBehaviour
 		{
 			Vector3 position = mPool[count].transform.position;
 			float scale = mPool[count].transform.localScale.x;
-			position.y -= GameLogic.GameDeltaTime * GameLogic.PlayerSpeed * scale;
+			position.y -= GameLogic.GameDeltaTime * mGameLogic.PlayerSpeed * scale;
 
 			if( position.y < GameLogic.ScreenHeight * -0.5f )
 			{
