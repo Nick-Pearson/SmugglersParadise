@@ -70,7 +70,8 @@ public class GameLogic : MonoBehaviour
             UIManager.UISystem.ChangeStartText(i + "");
             yield return new WaitForSeconds(1.0f);
         }
-        
+
+        UIManager.UISystem.ChangeStartText("");
         Paused = false;
         mGameStatus = State.Game;
         OnStateChange(mGameStatus);

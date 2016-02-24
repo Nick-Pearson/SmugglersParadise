@@ -2,21 +2,26 @@
 using System.Collections;
 using UnityEngine.UI;
 
-public class PlayerCharacter : MonoBehaviour 
+public class PlayerCharacter : MonoBehaviour
 {
-	[SerializeField] private Camera GameplayCamera;
-	[SerializeField] private float FireOffset;
-    [SerializeField] private Transform[] EngineEffects;
-    [SerializeField] private Vector2 DragCoefficient;
+    [SerializeField]
+    private Camera GameplayCamera;
+    [SerializeField]
+    private float FireOffset;
+    [SerializeField]
+    private Transform[] EngineEffects;
+    [SerializeField]
+    private Vector2 DragCoefficient;
 
     //component references
-	private Weapon mGun;
+    private Weapon mGun;
 
     private float mGameStartTime;
 
     //place to store references to our addons
     //TODO: fill with default addons for now 
-    private Ship addonManager = new Ship(new Mk1FlightDeck(), new Mk1Cargo(), new RearEngineMount(new Mk1Engine(), new Mk1Engine()));
+    private Addon baseAddon;
+    public Addon BaseAddon { get; private set; }
 
     //physics variables
     private Vector2 mVelocity;
@@ -37,22 +42,25 @@ public class PlayerCharacter : MonoBehaviour
     private const float ROTATION_SPEED = 4; //speed that we turn
     private const int SHIP_TILT_FACTOR = 5; //tilt when turning in degrees
 
-	public Weapon Weapon { get { return mGun; } }
+    public Weapon Weapon { get { return mGun; } }
 
     //INFO Properties                  (i.e. Readonly Properties to get data)
-    public float PlayerSpeedY { //migrated from DifficultyCurve (PlayerSpeed)
+    public float PlayerSpeedY
+    { //migrated from DifficultyCurve (PlayerSpeed)
         get { return PlayerVelocity.y; }
-    } 
+    }
     public float PlayerSpeedX
     {
         get { return PlayerVelocity.x; }
     }
     public float PlayerSpeed
     {
-        get { return PlayerVelocity.magnitude;  }
+        get { return PlayerVelocity.magnitude; }
     }
-    public Vector2 PlayerVelocity {
-        get {
+    public Vector2 PlayerVelocity
+    {
+        get
+        {
             return mVelocity;
         }
     }
@@ -68,8 +76,9 @@ public class PlayerCharacter : MonoBehaviour
         }
     }
     private float mFuelAmount;
-    public float PlayerFuelAmount {
-        get { return mFuelAmount;  }
+    public float PlayerFuelAmount
+    {
+        get { return mFuelAmount; }
         private set
         {
             if (value < 0)
@@ -97,11 +106,40 @@ public class PlayerCharacter : MonoBehaviour
     //CARGO Properties                  (i.e. Properties exposed to be modified by cargo)
     public float ShipCargoMass { get; set; }
 
-    void Start() 
-	{
-		// Look for the gun
-		mGun = GetComponentInChildren<Weapon>();
-        
+    Addon buildBasicShip()
+    {
+        Addon fd = new Mk1FlightDeck();
+        Addon cg = new Mk1Cargo();
+        Addon cg2 = new Mk1Cargo();
+        Addon em = new Mk1EngineMount();
+        Addon e1 = new Mk1Engine();
+        Addon e2 = new Mk1Engine();
+        Addon em2 = new Mk1EngineMount();
+        Addon e3 = new Mk1Engine();
+        Addon e4 = new Mk1Engine();
+
+        em.attach(Addon.AttachPosition.Left, e1);
+        em.attach(Addon.AttachPosition.Right, e2);
+
+        cg.attach(Addon.AttachPosition.Bottom, em);
+
+        cg2.attach(Addon.AttachPosition.Bottom, cg);
+
+        em2.attach(Addon.AttachPosition.Left, e3);
+        em2.attach(Addon.AttachPosition.Right, e4);
+
+        em2.attach(Addon.AttachPosition.Bottom, cg2);
+
+        fd.attach(Addon.AttachPosition.Bottom, em2);
+
+        return fd;
+    }
+
+    void Start()
+    {
+        // Look for the gun
+        mGun = GetComponentInChildren<Weapon>();
+
         mDirection = 0;
 
         //Setup our roation quarternions
@@ -111,13 +149,16 @@ public class PlayerCharacter : MonoBehaviour
         transform.Rotate(new Vector3(0, 0, SHIP_TILT_FACTOR));
         mLeftRotation = transform.rotation;
 
-        transform.Rotate(new Vector3(0, 0,-2 * SHIP_TILT_FACTOR));
+        transform.Rotate(new Vector3(0, 0, -2 * SHIP_TILT_FACTOR));
         mRightRotation = transform.rotation;
 
         transform.rotation = mZeroRotation;
 
+        //TODO: Make this dynamic from our savegame
+        BaseAddon = buildBasicShip();
+
         //apply the buffs from our addons
-        addonManager.ApplyChanges(this);
+        BaseAddon.ApplyChanges(this);
 
         // TODO: Fix arbitrary starting values
         PlayerFuelAmount = PlayerMaxFuel;
@@ -129,6 +170,50 @@ public class PlayerCharacter : MonoBehaviour
 
         //signup for game state changes
         GameLogic.OnStateChange += OnGameStateChange;
+
+        //work out what our ship should look like
+        GenerateShipGraphics();
+    }
+
+    void GenerateShipGraphics()
+    {
+        GameObject baseObject = new GameObject("ShipGraphics");
+        baseObject.transform.parent = transform;
+        float height = BuildAddonGraphics(0, 0, BaseAddon, baseObject);
+        baseObject.transform.Translate(0, height, 0);
+    }
+
+    float BuildAddonGraphics(float offsetX, float offsetY, Addon a, GameObject parent)
+    {
+        if (a == null)
+            return 0;
+
+        //cache the properties we will need
+        float width = a.getWidth();
+        float height = a.getHeight();
+
+        Debug.Log("Found" + a.getName());
+        GameObject art = Resources.Load<GameObject>("Player/" + a.getName());
+        GameObject instance = Instantiate(art, new Vector3(offsetX, offsetY, 0), Quaternion.identity) as GameObject;
+        instance.transform.parent = parent.transform;
+
+        Addon[] attachments = a.getAttachments();
+
+        if (attachments.Length == 0)
+            return height;
+
+        float h0 = BuildAddonGraphics(offsetX, offsetY + height, attachments[0], instance);
+        float h1 = BuildAddonGraphics(offsetX, offsetY - height, attachments[1], instance);
+        float h2 = BuildAddonGraphics(offsetX + width, offsetY, attachments[2], instance);
+        float h3 = BuildAddonGraphics(offsetX - width, offsetY, attachments[3], instance);
+
+        //the total height of the unit plus addons
+        float normHeight = height + h1;
+        //the height of the edge cases extending bellow the addon
+        float edgeHeight = h2 > h3 ? h2 : h3;
+
+        //are our edge addons taller than us?
+        return normHeight > edgeHeight ? normHeight : edgeHeight;
     }
 
     void FixedUpdate()
@@ -136,8 +221,8 @@ public class PlayerCharacter : MonoBehaviour
         //calculate the thrust we are using
         float totalThrust = PlayerFuelAmount == 0 ? 0 : PlayerThrustPercentage * MaxThrustForce * GameLogic.GameFixedDeltaTime; //total thrust in kN
         Vector2 appliedThrust = new Vector2(mDirection * Mathf.Sin(SHIP_TILT_FACTOR * Mathf.PI / 180) * totalThrust, Mathf.Cos(SHIP_TILT_FACTOR * (Mathf.PI / 180) * Mathf.Abs(mDirection)) * totalThrust);
-        
-        mGravityScale = 1-Mathf.Clamp01(Mathf.Pow(mVirtualPosition.y,2)/16900); //x^2 falloff of gravity
+
+        mGravityScale = 1 - Mathf.Clamp01(Mathf.Pow(mVirtualPosition.y, 2) / 16900); //x^2 falloff of gravity
 
         //thrust minus gravity
         Vector2 netForce = new Vector2(appliedThrust.x, appliedThrust.y - (GRAVITATIONAL_FORCE * mGravityScale * PlayerMass * GameLogic.GameFixedDeltaTime));
@@ -161,7 +246,7 @@ public class PlayerCharacter : MonoBehaviour
         UIManager.UISystem.ChangeSpeedValue(mVelocity.y);
 
         //finally apply drag
-        mVelocity = new Vector2((1-(DragCoefficient.x*GameLogic.GameFixedDeltaTime)) * mVelocity.x, (1 - (DragCoefficient.y * GameLogic.GameFixedDeltaTime)) * mVelocity.y);
+        mVelocity = new Vector2((1 - (DragCoefficient.x * GameLogic.GameFixedDeltaTime)) * mVelocity.x, (1 - ((DragCoefficient.y + (100 * DragCoefficient.y * mGravityScale)) * GameLogic.GameFixedDeltaTime)) * mVelocity.y);
     }
 
     void Update()
@@ -180,30 +265,30 @@ public class PlayerCharacter : MonoBehaviour
 
     private void OnGameStateChange(GameLogic.State s)
     {
-        if(s == GameLogic.State.Game)
+        if (s == GameLogic.State.Game)
         {
             mGameStartTime = Time.time;
         }
     }
 
 
-	public void Reset()
-	{
-		Vector3 position = new Vector3( 0.0f, 0.0f, 0.0f );
-		transform.position = position;
-	}
+    public void Reset()
+    {
+        Vector3 position = new Vector3(0.0f, 0.0f, 0.0f);
+        transform.position = position;
+    }
 
-	public void Fire()
-	{
-		if( mGun != null )
-		{
-			Vector3 position = transform.position;
-			position.y += FireOffset;
-			mGun.Fire( position );
-		}
-	}
+    public void Fire()
+    {
+        if (mGun != null)
+        {
+            Vector3 position = transform.position;
+            position.y += FireOffset;
+            mGun.Fire(position);
+        }
+    }
 
-	public void MoveLeft()
+    public void MoveLeft()
     {
         mDirection--;
 
@@ -213,8 +298,8 @@ public class PlayerCharacter : MonoBehaviour
         UpdateRotationTarget();
     }
 
-	public void MoveRight()
-	{
+    public void MoveRight()
+    {
         mDirection++;
 
         if (mDirection > 1)
@@ -227,7 +312,10 @@ public class PlayerCharacter : MonoBehaviour
     {
         PlayerThrustPercentage = val;
 
-        foreach(Transform t in EngineEffects)
+        if (PlayerFuelAmount == 0)
+            val = 0;
+
+        foreach (Transform t in EngineEffects)
         {
             t.localScale = new Vector3(t.localScale.x, val, t.localScale.z);
         }
@@ -241,7 +329,7 @@ public class PlayerCharacter : MonoBehaviour
 
         mRotateTime = 0;
 
-        switch(mDirection)
+        switch (mDirection)
         {
             case -1:
                 mTargetRotation = mLeftRotation;
