@@ -4,17 +4,14 @@ using UnityEngine.UI;
 
 public class PlayerCharacter : MonoBehaviour
 {
-    [SerializeField]
-    private Camera GameplayCamera;
-    [SerializeField]
-    private float FireOffset;
-    [SerializeField]
-    private Transform[] EngineEffects;
-    [SerializeField]
-    private Vector2 DragCoefficient;
+    [SerializeField] private Camera GameplayCamera;
+    [SerializeField] private float FireOffset;
+    [SerializeField] private Vector2 DragCoefficient;
 
     //component references
     private Weapon mGun;
+
+    private GameObject[] mEngineEffects = new GameObject[0];
 
     private float mGameStartTime;
 
@@ -24,11 +21,10 @@ public class PlayerCharacter : MonoBehaviour
     public Addon BaseAddon { get; private set; }
 
     //physics variables
+    [SerializeField]
     private Vector2 mVelocity;
-    [SerializeField]
     private float mGravityScale;
-    [SerializeField]
-    private Vector2 mVirtualPosition;
+    [SerializeField] private Vector2 mVirtualPosition;
     private const float GRAVITATIONAL_FORCE = 9.81f;
 
     //Rotation variables
@@ -165,14 +161,14 @@ public class PlayerCharacter : MonoBehaviour
         PlayerThrustPercentage = 0.0f;
         ShipCargoMass = ShipMaxCargo;
 
-        //set initial throttle to 0%
-        UIManager.UISystem.ChangeThrottleValue(0);
-
         //signup for game state changes
         GameLogic.OnStateChange += OnGameStateChange;
 
         //work out what our ship should look like
         GenerateShipGraphics();
+
+        //set initial throttle to 0%
+        UIManager.UISystem.ChangeThrottleValue(0);
     }
 
     void GenerateShipGraphics()
@@ -181,6 +177,9 @@ public class PlayerCharacter : MonoBehaviour
         baseObject.transform.parent = transform;
         float height = BuildAddonGraphics(0, 0, BaseAddon, baseObject);
         baseObject.transform.Translate(0, height, 0);
+
+        //find all our engine effects
+        mEngineEffects = GameObject.FindGameObjectsWithTag("Effect");
     }
 
     float BuildAddonGraphics(float offsetX, float offsetY, Addon a, GameObject parent)
@@ -230,23 +229,14 @@ public class PlayerCharacter : MonoBehaviour
 
         //basic collision detection on planet
         //Will this move put us bellow the ground
-        if (mVirtualPosition.y + mVelocity.y + netAcceleration.y <= 0.0f)
-        {
-            mVelocity.y = -mVirtualPosition.y; //velocity is the exact distance to ground
-            mVirtualPosition.y = 0;
-        }
-        else
-        {
-            mVelocity += netAcceleration;
-            mVirtualPosition += mVelocity * GameLogic.GameFixedDeltaTime;
-            transform.Translate(mVelocity.x * GameLogic.GameFixedDeltaTime, 0, 0);
-        }
+        mVelocity += netAcceleration;
+        transform.Translate(mVelocity.x * GameLogic.GameFixedDeltaTime, 0, 0);
 
         //notify the UI of our new velocity
         UIManager.UISystem.ChangeSpeedValue(mVelocity.y);
 
         //finally apply drag
-        mVelocity = new Vector2((1 - (DragCoefficient.x * GameLogic.GameFixedDeltaTime)) * mVelocity.x, (1 - ((DragCoefficient.y + (100 * DragCoefficient.y * mGravityScale)) * GameLogic.GameFixedDeltaTime)) * mVelocity.y);
+        //mVelocity = new Vector2((1 - (DragCoefficient.x * GameLogic.GameFixedDeltaTime)) * mVelocity.x, (1 - ((DragCoefficient.y + (100 * DragCoefficient.y * mGravityScale)) * GameLogic.GameFixedDeltaTime)) * mVelocity.y);
     }
 
     void Update()
@@ -261,6 +251,14 @@ public class PlayerCharacter : MonoBehaviour
         //update camera position if necassary
         if (mVirtualPosition.y < 8)
             GameplayCamera.transform.Translate(0, -mVelocity.y * GameLogic.GameDeltaTime, 0);
+
+        //basic collision detection on planet
+        mVirtualPosition += mVelocity * GameLogic.GameFixedDeltaTime;
+        if (mVirtualPosition.y <= 0.0f)
+        {
+            mVelocity.y = 0; //velocity is the exact distance to ground
+            mVirtualPosition.y = 0;
+        }
     }
 
     private void OnGameStateChange(GameLogic.State s)
@@ -315,9 +313,9 @@ public class PlayerCharacter : MonoBehaviour
         if (PlayerFuelAmount == 0)
             val = 0;
 
-        foreach (Transform t in EngineEffects)
+        foreach (GameObject go in mEngineEffects)
         {
-            t.localScale = new Vector3(t.localScale.x, val, t.localScale.z);
+            go.transform.localScale = new Vector3(go.transform.localScale.x, val, go.transform.localScale.z);
         }
     }
 
