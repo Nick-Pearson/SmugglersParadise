@@ -114,8 +114,11 @@ public class PlayerCharacter : MonoBehaviour
         Addon e3 = new Mk1Engine();
         Addon e4 = new Mk1Engine();
 
+        Addon e5 = new Mk2Engine();
+
         em.attach(Addon.AttachPosition.Left, e1);
         em.attach(Addon.AttachPosition.Right, e2);
+        em.attach(Addon.AttachPosition.Bottom, e5);
 
         cg.attach(Addon.AttachPosition.Bottom, em);
 
@@ -201,7 +204,7 @@ public class PlayerCharacter : MonoBehaviour
         if (attachments.Length == 0)
             return height;
 
-        float h0 = BuildAddonGraphics(offsetX, offsetY + height, attachments[0], instance);
+        BuildAddonGraphics(offsetX, offsetY + height, attachments[0], instance);
         float h1 = BuildAddonGraphics(offsetX, offsetY - height, attachments[1], instance);
         float h2 = BuildAddonGraphics(offsetX + width, offsetY, attachments[2], instance);
         float h3 = BuildAddonGraphics(offsetX - width, offsetY, attachments[3], instance);

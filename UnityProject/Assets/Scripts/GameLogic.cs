@@ -5,11 +5,6 @@ using UnityEngine.UI;
 
 public class GameLogic : MonoBehaviour 
 {
-    public struct Planet
-    {
-        public float atmosphereSize;
-        public float gravityScale; //wrt earths gravity
-    }
 	[SerializeField] private Camera GameplayCamera;
 	[SerializeField] private float PlayerKillDistance = 10.0f;  
 	[SerializeField] private float BulletKillDistance = 10.0f;
@@ -57,8 +52,8 @@ public class GameLogic : MonoBehaviour
 		Paused = false;
 
         //TODO: Fix aribtrary starting values
-        Origin.atmosphereSize = 100;
-        Destination.atmosphereSize = 200;
+        Origin = World.Egoras;
+        Destination = World.Hellzine;
 
         StartCoroutine(StartSequence());
 	}

@@ -102,6 +102,24 @@ public class Mk1Engine : Engine
     public override bool[] canAttach() { return new bool[4] { false, false, true, true }; }
 }
 
+public class Mk2Engine : Engine
+{
+    public override void applyBuffs(PlayerCharacter player)
+    {
+        player.MaxThrustForce += 20000;
+        player.PlayerMaxFuel += 0;
+        player.PlayerMaxFuelBurn += 100f;
+    }
+
+    public override int getMass() { return 80; }
+    public override int getValue() { return 50; }
+    public override int getPrice() { return 250; }
+    public override string getName() { return "Mk2Engine"; }
+    public override float getHeight() { return 1.15f; }
+    public override float getWidth() { return 1; }
+    public override bool[] canAttach() { return new bool[4] { true, false, false, false }; }
+}
+
 //            CARGO BAYS
 //======================================
 

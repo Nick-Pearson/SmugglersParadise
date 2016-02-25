@@ -40,11 +40,11 @@ public class PlanetFactory : MonoBehaviour {
         }
     }
 
-    void SetupPlanet(GameObject go, GameLogic.Planet p)
+    void SetupPlanet(GameObject go, Planet p)
     {
         Transform atmos_a = go.transform.FindChild("atmosphere_a");
         Transform atmos_w = go.transform.FindChild("atmosphere_w");
-        float scale = atmos_a.localScale.y * p.atmosphereSize;
+        float scale = atmos_a.localScale.y * p.AtmosphereSize;
         atmos_a.localScale = new Vector3(1,scale,1);
         atmos_w.localScale = new Vector3(1, scale, 1);
     }

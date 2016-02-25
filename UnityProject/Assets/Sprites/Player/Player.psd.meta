@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: d61ebdee536184f4986fa582e008d784
-timeCreated: 1456340479
+timeCreated: 1456356852
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -8,6 +8,7 @@ TextureImporter:
     21300002: Mk1FlightDeck
     21300004: Mk1Engine
     21300006: Mk1EngineMount
+    21300008: Mk2Engine
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -91,6 +92,16 @@ TextureImporter:
         y: 230
         width: 192
         height: 52
+      alignment: 2
+      pivot: {x: .5, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: Mk2Engine
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 93
+        width: 152
+        height: 137
       alignment: 2
       pivot: {x: .5, y: 1}
       border: {x: 0, y: 0, z: 0, w: 0}
