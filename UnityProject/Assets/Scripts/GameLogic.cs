@@ -27,7 +27,7 @@ public class GameLogic : MonoBehaviour
 	public static float GameDeltaTime { get; private set; }
     public static float GameFixedDeltaTime { get; private set; }
 	public static float GameSpeed { get { return DifficultyCurve.GameSpeed; } }
-	public float PlayerSpeed { get { return mPlayerCharacter.PlayerSpeedY; } }
+	public float PlayerSpeed { get { return mPlayerCharacter.PlayerSpeed; } }
 	public static float BulletSpeed { get { return DifficultyCurve.BulletSpeed; } }
 	public static float ScreenBounds { get; private set; }
 	public static float ScreenHeight { get; private set; }

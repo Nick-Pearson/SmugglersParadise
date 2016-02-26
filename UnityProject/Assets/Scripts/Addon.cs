@@ -1,5 +1,4 @@
 ﻿//base class for all ship upgrades
-using System;
 
 public abstract class Addon {
     //nice enum to shield indexing the bool/Addon array ourselves
