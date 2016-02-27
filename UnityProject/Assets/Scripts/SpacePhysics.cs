@@ -52,9 +52,6 @@ public class SpacePhysics : MonoBehaviour {
 
         //thrust minus gravity
         float netAcceleration = (appliedThrust / Mass) - (GRAVITATIONAL_FORCE * mGravityScale * GameLogic.GameFixedDeltaTime);
-
-        //basic collision detection on planet
-        //Will this move put us bellow the ground
         mVelocity += netAcceleration;
         
         //finally apply drag

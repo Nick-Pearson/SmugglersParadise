@@ -9,6 +9,7 @@ public static class GameState {
 
     //publically accessable properties
     public static Planet CurrentPlanet;
+    public static string ShipName;
 
     public static void LoadGame(string GameName)
     {
@@ -24,5 +25,16 @@ public static class GameState {
     public static void SaveGame()
     {
         SaveGame(mGameName);
+    }
+
+    //accessor to missions
+    public static Mission[] GetActiveMissions()
+    {
+        return mActiveMissions.ToArray();
+    }
+
+    public static void AddMission(Mission m)
+    {
+        mActiveMissions.Add(m);
     }
 }
