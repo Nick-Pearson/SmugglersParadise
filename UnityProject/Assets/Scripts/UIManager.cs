@@ -20,6 +20,12 @@ public class UIManager : MonoBehaviour {
     [SerializeField] public OnValueChangedEvent SpeedValue;
     [SerializeField] public OnTextChangedEvent SpeedText;
 
+    [SerializeField] public OnTextChangedEvent CargoText;
+    [SerializeField] public OnValueChangedEvent CargoValue;
+
+    [SerializeField] public OnTextChangedEvent PassengerText;
+    [SerializeField] public OnValueChangedEvent PassengerValue;
+
     void Awake()
     {
         if (UISystem == null)
@@ -31,7 +37,19 @@ public class UIManager : MonoBehaviour {
     public void ChangeFuelValue(float val)
     {
         FuelValue.Invoke(val);
-        FuelText.Invoke(string.Format("Fuel {0}%", Mathf.FloorToInt(val * 100)));
+        FuelText.Invoke(string.Format("{0}% Fuel", Mathf.FloorToInt(val * 100)));
+    }
+
+    public void ChangeCargoValue(float val)
+    {
+        CargoValue.Invoke(val);
+        CargoText.Invoke(string.Format("{0}% Cargo", Mathf.FloorToInt(val * 100)));
+    }
+
+    public void ChangePassengerValue(int val)
+    {
+        PassengerValue.Invoke(val);
+        PassengerText.Invoke(string.Format("{0} Passengers", Mathf.FloorToInt(val * 100)));
     }
 
     public void ChangeThrottleValue(float val)
