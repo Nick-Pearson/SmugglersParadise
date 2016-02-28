@@ -10,17 +10,21 @@ public class PlayerCharacter : MonoBehaviour
     private Weapon mGun;
     private SpacePhysics mPhysics;
 
+    //columning variables
+    private float mTargetPositon;
+    private float mStartPosition;
+    private float mColumnSize;
+    private int mColumn = 1;
+    private float mColumnTime = 0; //timer for smooth movement
+
     private float mGameStartTime;
 
     //Rotation variables
-    private int mDirection; // 0 for ahead, 1 for right, -1 for left
     private Quaternion mStartRotation;
     private Quaternion mTargetRotation;
     private Quaternion mZeroRotation;
     private Quaternion mLeftRotation;
     private Quaternion mRightRotation;
-    private float mRotateTime = 0; //timer for smooth rotation
-    private const float ROTATION_SPEED = 4; //speed that we turn
     private const int SHIP_TILT_FACTOR = 5; //tilt when turning in degrees
 
     public Weapon Weapon { get { return mGun; } }
@@ -53,14 +57,12 @@ public class PlayerCharacter : MonoBehaviour
 
 
     //ADDON Properties                  (i.e. Properties exposed to be modified by addons)
-    public float MaxThrustForce { get; set; } //how much thrust can we apply in kilo Newtons (??)
-
-    public float ShipAddonMass { get; set; } //mass of addon elements
-
-    public float PlayerMaxFuel { get; set; } //max capacity of fuel tanks in tons
-    public float PlayerMaxFuelBurn { get; set; } //tons of fuel burnt per second at 100% power
-
-    public float ShipMaxCargo { get; set; }
+    [HideInInspector] public float MaxThrustForce = 0; //how much thrust can we apply in kilo Newtons (??)
+    [HideInInspector] public float ShipAddonMass = 0; //mass of addon elements
+    [HideInInspector] public float PlayerMaxFuel = 0; //max capacity of fuel tanks in tons
+    [HideInInspector] public float PlayerMaxFuelBurn = 0; //tons of fuel burnt per second at 100% power
+    [HideInInspector] public float ShipMaxCargo = 0; //max capacity of the cargo hold
+    [HideInInspector] public float ShipHandling = 100; //time it takes the ship to move across a column
 
     //CARGO Properties                  (i.e. Properties exposed to be modified by cargo)
     public float ShipCargoMass { get; set; }
@@ -71,7 +73,8 @@ public class PlayerCharacter : MonoBehaviour
         mGun = GetComponentInChildren<Weapon>();
         mPhysics = GetComponent<SpacePhysics>();
 
-        mDirection = 0;
+        //setup column parameters
+        mColumnSize = (GameLogic.ScreenHeight * Camera.main.aspect * 0.8f) / 3;
 
         //Setup our roation quarternions
         mZeroRotation = transform.rotation;
@@ -103,8 +106,7 @@ public class PlayerCharacter : MonoBehaviour
 
     void Update()
     {
-        mRotateTime += GameLogic.GameDeltaTime * ROTATION_SPEED;
-        transform.rotation = Quaternion.Slerp(mStartRotation, mTargetRotation, mRotateTime);
+        transform.rotation = Quaternion.Slerp(mStartRotation, mTargetRotation, mColumnTime);
 
         //burn our fuel
         PlayerFuelAmount -= PlayerMaxFuelBurn * PlayerThrustPercentage * GameLogic.GameDeltaTime;
@@ -123,6 +125,22 @@ public class PlayerCharacter : MonoBehaviour
         }
 
         Physics.Mass = ShipAddonMass + PlayerFuelAmount;
+
+        //move ourselves to the right column
+        Debug.Log(mColumnTime + ", " + GameLogic.GameDeltaTime + ", " + mPhysics.Velocity + ", " + ShipHandling);
+        mColumnTime += GameLogic.GameDeltaTime * (Mathf.Clamp(mPhysics.Velocity,0, 100) / ShipHandling);
+        Vector3 pos = transform.position;
+        pos.x = Mathf.SmoothStep(mStartPosition, mTargetPositon, mColumnTime);
+        transform.position = pos;
+
+        if(mColumnTime < 0.5f)
+        { //rotate towards the middle
+            transform.rotation = Quaternion.Slerp(mStartRotation, mTargetRotation, mColumnTime * 2);
+        }
+        else
+        { //move back to normal
+            transform.rotation = Quaternion.Slerp(mTargetRotation, mZeroRotation, (mColumnTime * 2) - 1);
+        }
     }
 
     private void OnGameStateChange(GameLogic.State s)
@@ -152,48 +170,32 @@ public class PlayerCharacter : MonoBehaviour
 
     public void MoveLeft()
     {
-        mDirection--;
-
-        if (mDirection < -1)
-            mDirection = -1;
-
-        UpdateRotationTarget();
+        if(mColumn != 0)
+        {
+            mColumn--;
+            mStartRotation = transform.rotation;
+            mTargetRotation = mLeftRotation;
+            mStartPosition = transform.position.x;
+            mTargetPositon -= mColumnSize;
+            mColumnTime = 0;
+        }
     }
 
     public void MoveRight()
     {
-        mDirection++;
-
-        if (mDirection > 1)
-            mDirection = 1;
-
-        UpdateRotationTarget();
+        if (mColumn != 2)
+        {
+            mColumn++;
+            mStartRotation = transform.rotation;
+            mTargetRotation = mRightRotation;
+            mStartPosition = transform.position.x;
+            mTargetPositon += mColumnSize;
+            mColumnTime = 0;
+        }
     }
 
     public void UpdateThrottle(float val)
     {
         PlayerThrustPercentage = val;
-    }
-
-    private void UpdateRotationTarget()
-    {
-        //store our current rotation as a base
-        //(keeps rotations smooth when someone switches half way through one)
-        mStartRotation = transform.rotation;
-
-        mRotateTime = 0;
-
-        switch (mDirection)
-        {
-            case -1:
-                mTargetRotation = mLeftRotation;
-                break;
-            case 0:
-                mTargetRotation = mZeroRotation;
-                break;
-            case 1:
-                mTargetRotation = mRightRotation;
-                break;
-        }
     }
 }
