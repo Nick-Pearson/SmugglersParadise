@@ -24,7 +24,7 @@ public class BackgroundScenery : MonoBehaviour
 			CreateMesh m = sceneryItem.AddComponent<CreateMesh>();
 			m.Material = SceneryMaterial;
 			float x = Random.Range( -GameLogic.ScreenBounds, GameLogic.ScreenBounds );
-			float y = Random.Range( GameLogic.ScreenHeight * -0.5f, GameLogic.ScreenHeight * 0.5f );
+			float y = Random.Range( GameLogic.ScreenBottom, GameLogic.ScreenTop);
 			float scale = Random.Range( SceneryMinScale, SceneryMaxScale );
 			sceneryItem.transform.position = new Vector3( x, y, 0.0f );
 			sceneryItem.transform.localScale = new Vector3( scale, scale, scale );
@@ -43,9 +43,9 @@ public class BackgroundScenery : MonoBehaviour
 			float scale = mPool[count].transform.localScale.x;
 			position.y -= GameLogic.GameDeltaTime * mGameLogic.PlayerSpeed * scale;
 
-			if( position.y < GameLogic.ScreenHeight * -0.5f )
+			if( position.y < GameLogic.ScreenBottom )
 			{
-				position.y = GameLogic.ScreenHeight * 0.5f;
+				position.y = GameLogic.ScreenTop;
 			}
 
 			mPool[count].transform.position = position;

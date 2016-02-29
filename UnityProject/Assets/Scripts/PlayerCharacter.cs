@@ -13,7 +13,6 @@ public class PlayerCharacter : MonoBehaviour
     //columning variables
     private float mTargetPositon;
     private float mStartPosition;
-    private float mColumnSize;
     private GameState.Column mColumn = GameState.Column.Two;
     private float mColumnTime = 0; //timer for smooth movement
 
@@ -72,9 +71,6 @@ public class PlayerCharacter : MonoBehaviour
         // Look for the gun
         mGun = GetComponentInChildren<Weapon>();
         mPhysics = GetComponent<SpacePhysics>();
-
-        //setup column parameters
-        mColumnSize = (GameLogic.ScreenHeight * Camera.main.aspect * 0.8f) / (int)GameState.Column.NumColumns;
 
         //Setup our roation quarternions
         mZeroRotation = transform.rotation;
@@ -175,7 +171,7 @@ public class PlayerCharacter : MonoBehaviour
             mStartRotation = transform.rotation;
             mTargetRotation = mLeftRotation;
             mStartPosition = transform.position.x;
-            mTargetPositon -= mColumnSize;
+            mTargetPositon -= GameLogic.ColumnSize;
             mColumnTime = 0;
         }
     }
@@ -188,7 +184,7 @@ public class PlayerCharacter : MonoBehaviour
             mStartRotation = transform.rotation;
             mTargetRotation = mRightRotation;
             mStartPosition = transform.position.x;
-            mTargetPositon += mColumnSize;
+            mTargetPositon += GameLogic.ColumnSize;
             mColumnTime = 0;
         }
     }

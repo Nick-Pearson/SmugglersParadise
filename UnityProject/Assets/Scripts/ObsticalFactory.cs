@@ -11,16 +11,12 @@ public class ObsticalFactory : MonoBehaviour
     private GameObject [] mPool;
 	private List<GameObject> mActive;
 	private List<GameObject> mInactive;
-	private float mColumnWidth;
 	
 	void Awake()
 	{
 		if( mInstance == null )
 		{
 			mInstance = this;
-
-            // Work out the width of each column
-			mColumnWidth = ( GameLogic.ScreenHeight * Camera.main.aspect * 0.8f ) / (int)GameState.Column.NumColumns;
 
 			// Create the enemies, initialise the active and available lists, put all enemies in the available list
 			mActive = new List<GameObject>();
@@ -32,6 +28,18 @@ public class ObsticalFactory : MonoBehaviour
 			Destroy( this.gameObject );
 		}
 	}
+
+    void Update()
+    {
+        List<GameObject> deadObsticals = new List<GameObject>();
+        //check which obsticals are off screen
+        foreach(GameObject go in mActive)
+            if(go.transform.position.y < GameLogic.ScreenBottom)
+                deadObsticals.Add(go);
+
+        foreach (GameObject go in deadObsticals)
+            Return(go);
+    }
 
 	public static GameObject Dispatch(GameState.Column column )
 	{
@@ -70,30 +78,44 @@ public class ObsticalFactory : MonoBehaviour
 
 	private GameObject DoDispatch( GameState.Column column )
 	{
-		// Look for a free enemy and then dispatch them 
+        //decide what type of obstical we will be
+        string oType = DecideObsticalType();
+
+		// Look for a free obstical object and then dispatch them 
 		GameObject result = null;
 		if( mInactive.Count > 0 )
 		{
-			GameObject enemy = mInactive[0];
-			Vector3 position = enemy.transform.position;
-			position.x = -mColumnWidth + ( mColumnWidth * (float)column ); 
-			position.y = GameLogic.ScreenHeight * 0.5f;
-			position.z = 0.0f;
-			enemy.transform.position = position;
-			enemy.SetActive( true );
-			mActive.Add( enemy );
-			mInactive.Remove( enemy );
-			result = enemy;
+            foreach(GameObject go in mInactive)
+            {
+                if (go.name == oType)
+                {
+                    result = go;
+                    mInactive.Remove(go);
+                    go.SetActive(true);
+                    break;
+                }
+            }
 		}
 
         if(result == null)
         {
-            //we need to instantiate our obstical
-
+            //we need to instantiate our obstical as none could be found
+            GameObject prefab = Resources.Load<GameObject>(oType);
+            result = Instantiate(prefab) as GameObject;
+            result.name = oType;
+            result.transform.SetParent(transform);
         }
-		
-		// Returns true if a free enemy was found and dispatched
-		return result;
+        
+        //initialise position to top of the screen
+        Vector3 position = result.transform.position;
+        position.x = -GameLogic.ColumnSize + (GameLogic.ColumnSize * (float)column);
+        position.y = GameLogic.ScreenTop;
+        position.z = 0.0f;
+        result.transform.position = position;
+        mActive.Add(result);
+
+        // Returns true if a free enemy was found and dispatched
+        return result;
 	}
 
     private string DecideObsticalType()

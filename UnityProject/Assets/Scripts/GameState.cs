@@ -12,7 +12,7 @@ public static class GameState {
     public static string ShipName;
 
     //global game properties
-    public enum Column { One, Two, Three, NumColumns }
+    public enum Column { One=0, Two, Three, NumColumns }
 
     public static void LoadGame(string GameName)
     {

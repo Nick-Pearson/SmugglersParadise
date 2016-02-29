@@ -66,7 +66,7 @@ public class PlanetFactory : MonoBehaviour {
 
     void Update()
     {
-        if (mPlayer.Physics.Height > GameLogic.ScreenHeight)
+        if (mPlayer.Physics.Height > GameLogic.ScreenTop)
             return;
 
         foreach(GameObject go in mCloudObjects)
