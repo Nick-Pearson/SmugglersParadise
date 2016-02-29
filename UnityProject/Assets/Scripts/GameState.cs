@@ -11,6 +11,11 @@ public static class GameState {
     public static Planet CurrentPlanet;
     public static string ShipName;
 
+    //private properties
+    public static float PlayerFuel;
+    public static float PlayerCargoDef;
+    public static float PlayerPassengerDef;
+
     //global game properties
     public enum Column { One=0, Two, Three, NumColumns }
 
@@ -39,5 +44,10 @@ public static class GameState {
     public static void AddMission(Mission m)
     {
         mActiveMissions.Add(m);
+    }
+
+    public static void UpdatePlayerProperties(PlayerCharacter pc)
+    {
+        PlayerFuel = pc.PlayerFuelAmount;
     }
 }

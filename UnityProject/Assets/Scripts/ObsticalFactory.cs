@@ -7,6 +7,7 @@ public class ObsticalFactory : MonoBehaviour
 
     [SerializeField] private int NumberOfObjects = 1;
     [SerializeField] private int NumberOfTraffic = 1;
+    [SerializeField] private float TrafficDensity = 0.2f;
 
     private GameObject [] mPool;
 	private List<GameObject> mActive;
@@ -120,7 +121,7 @@ public class ObsticalFactory : MonoBehaviour
 
     private string DecideObsticalType()
     {
-        if(Random.value > 0.5f)
+        if(Random.value > TrafficDensity)
         {
             return "Objects/r" + Random.Range(0, NumberOfObjects);
         }

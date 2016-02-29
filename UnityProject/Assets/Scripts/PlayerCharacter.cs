@@ -144,6 +144,11 @@ public class PlayerCharacter : MonoBehaviour
         {
             mGameStartTime = Time.time;
         }
+        else if(s == GameLogic.State.EndGame)
+        {
+            //update the game state with our fuel
+            GameState.UpdatePlayerProperties(this);
+        }
     }
 
 

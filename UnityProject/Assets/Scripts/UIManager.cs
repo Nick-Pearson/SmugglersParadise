@@ -10,6 +10,7 @@ public class UIManager : MonoBehaviour {
     public static UIManager UISystem;
 
     [SerializeField] public OnTextChangedEvent StartText;
+    [SerializeField] public OnTextChangedEvent EndText;
 
     [SerializeField] public OnTextChangedEvent FuelText;
     [SerializeField] public OnValueChangedEvent FuelValue;
@@ -25,6 +26,8 @@ public class UIManager : MonoBehaviour {
 
     [SerializeField] public OnTextChangedEvent PassengerText;
     [SerializeField] public OnValueChangedEvent PassengerValue;
+
+    [SerializeField] public OnValueChangedEvent DistanceValue;
 
     void Awake()
     {
@@ -64,9 +67,19 @@ public class UIManager : MonoBehaviour {
         StartText.Invoke(val);
     }
 
+    public void ChangeEndText(string val)
+    {
+        EndText.Invoke(val);
+    }
+
     public void ChangeSpeedValue(float val)
     {
         SpeedValue.Invoke(val);
         SpeedText.Invoke((Mathf.FloorToInt(val * 10) / 10) + " m/s");
+    }
+
+    public void ChangeDistanceValue(float val)
+    {
+        DistanceValue.Invoke(val);
     }
 }

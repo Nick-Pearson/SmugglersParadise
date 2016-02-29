@@ -5,18 +5,15 @@ using UnityEngine.UI;
 
 public class GameLogic : MonoBehaviour
 {
-    [SerializeField] private float WaitTime = 1.0f;
     [SerializeField] private float ObsticalDensity = 1;
+    [SerializeField] private Image Fadeout;
 
-    public enum State { TapToStart, Game, GameOver };
+    public enum State { TapToStart, Game, GameOver, Won, EndGame };
 
     public delegate void OnGameStateChange(State s);
     public static event OnGameStateChange OnStateChange;
-
-    private List<GameObject> mActiveObsticals;
+    
     private PlayerCharacter mPlayerCharacter;
-    private float mGameOverTime;
-    [SerializeField]
     private float mDistanceTravelled;
     private State mGameStatus;
 
@@ -30,6 +27,7 @@ public class GameLogic : MonoBehaviour
     public static bool Paused { get; private set; }
     public static Planet Origin;
     public static Planet Destination;
+    public static float TargetDistance { get; private set; }
 
     //keep track of the camera offset
     public static float mScreenHeight; //height of half the camera
@@ -37,6 +35,9 @@ public class GameLogic : MonoBehaviour
     //for spawning obsticals
     private const float MIN_OBSTICAL_DISTANCE = 10;
     private float[] mLastSpawnDistance;
+
+    //time until we atuoload the menu
+    private const float TIME_UNTIL_LEVEL_LOAD = 1.0f;
 
     void Awake()
 	{
@@ -47,15 +48,15 @@ public class GameLogic : MonoBehaviour
 
         GameInput.OnTap += HandleOnTap;
 		GameInput.OnSwipe += HandleOnSwipe;
-		mActiveObsticals = new List<GameObject>();
 		mPlayerCharacter = GetComponentInChildren<PlayerCharacter>();
 		mGameStatus = State.TapToStart;
-        mGameOverTime = Time.timeSinceLevelLoad;
 		Paused = false;
         
         //TODO: Fix aribtrary starting values
         Origin = World.Egoras;
         Destination = World.Hellzine;
+
+        TargetDistance = World.getDistance(Origin, Destination);
 
         //setup spawning parameters
         mLastSpawnDistance = new float[(int)GameState.Column.NumColumns];
@@ -107,6 +108,15 @@ public class GameLogic : MonoBehaviour
 		if( mGameStatus == State.Game )
 		{
 			mDistanceTravelled += PlayerSpeed * GameDeltaTime;
+            UIManager.UISystem.ChangeDistanceValue(mDistanceTravelled / TargetDistance);
+
+            if(mDistanceTravelled > TargetDistance)
+            {
+                mGameStatus = State.Won;
+                StartCoroutine(FadeOut(0.5f, 30));
+                OnStateChange(mGameStatus);
+            }
+                
 		}
 	}
 
@@ -121,25 +131,33 @@ public class GameLogic : MonoBehaviour
 	{
 		switch( mGameStatus )
 		{
-		case State.TapToStart:
-            //Do Nothing
-            break;
 		case State.Game:
 			mPlayerCharacter.Fire();
 			break;
-		case State.GameOver:
-            if (Time.timeSinceLevelLoad - mGameOverTime > WaitTime)
-            { 
-			    Reset();
-			    UIManager.UISystem.ChangeStartText("Tap to Start");
-			    mGameStatus = State.TapToStart;
-            }
-            OnStateChange(mGameStatus);
+        default:
+            //do nothing
             break;
-		}
+        }
 	}
 
-	
+    private IEnumerator FadeOut(float fadeoutTime, int iterations = 100)
+    {
+        UIManager.UISystem.ChangeEndText(Destination.Name);
+        
+        for(int i = 0; i < iterations; i++)
+        {
+            Fadeout.color = new Color(0, 0, 0, (float)(i+1) / iterations);
+            yield return new WaitForSeconds(fadeoutTime / iterations);
+        }
+
+        //pause the game
+        Paused = true;
+        mGameStatus = State.EndGame;
+
+        yield return new WaitForSeconds(TIME_UNTIL_LEVEL_LOAD);
+        Application.LoadLevel("Menu");
+    }
+    
 	private void HandleOnSwipe( GameInput.Direction direction )
 	{
 		if( mGameStatus == State.Game )

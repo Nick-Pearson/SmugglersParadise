@@ -33,5 +33,5 @@ public class World {
 
     //defined planets in our world
     public static Planet Egoras = new Planet("Egoras", new Vector2(0, 0), 100, 1);
-    public static Planet Hellzine = new Planet("Hellzine", new Vector2(20000, 0), 200, 1);
+    public static Planet Hellzine = new Planet("Hellzine", new Vector2(500, 0), 200, 1);
 }
