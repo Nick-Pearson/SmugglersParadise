@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 
 //this class captures all information that should be saved and loaded with the game
-public static class GameState {
+//it must inherit from mono behaviour to survive a level reload...
+public class GameState : MonoBehaviour {
     private static string mGameName;
 
     private static List<Mission> mActiveMissions;
@@ -10,11 +11,14 @@ public static class GameState {
     //publically accessable properties
     public static Planet CurrentPlanet;
     public static string ShipName;
+    public static float PlayerFuelPercentage { get { return mPlayerMaxFuel == 0 ? 0 : mPlayerFuel / mPlayerMaxFuel; } }
+    public static float PlayerCargoPercentage { get { return mPlayerMaxCargo == 0 ? 0 : mPlayerCargo / mPlayerMaxCargo; } }
 
     //private properties
-    public static float PlayerFuel;
-    public static float PlayerCargoDef;
-    public static float PlayerPassengerDef;
+    private static float mPlayerFuel;
+    private static float mPlayerMaxFuel;
+    private static float mPlayerCargo;
+    private static float mPlayerMaxCargo;
 
     //global game properties
     public enum Column { One=0, Two, Three, NumColumns }
@@ -46,8 +50,12 @@ public static class GameState {
         mActiveMissions.Add(m);
     }
 
+    //capture the properties from the player itself
     public static void UpdatePlayerProperties(PlayerCharacter pc)
     {
-        PlayerFuel = pc.PlayerFuelAmount;
+        mPlayerFuel = pc.PlayerFuelAmount;
+        mPlayerMaxFuel = pc.PlayerMaxFuel;
+        mPlayerCargo = pc.ShipCargoMass;
+        mPlayerMaxCargo = pc.ShipMaxCargo;
     }
 }

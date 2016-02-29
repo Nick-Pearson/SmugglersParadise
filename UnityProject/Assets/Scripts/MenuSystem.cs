@@ -12,9 +12,16 @@ public class MenuSystem : MonoBehaviour {
     private RectTransform[] mMissionUIObjects;
     private int mCurrentSelectedMission = -1;
 
-    void Awake()
+    void Start()
     {
         GenerateMissionList(GetRandomMissions(50));
+        PopulateUI();
+    }
+
+    void PopulateUI()
+    {
+        UIManager.UISystem.ChangeCargoValue(GameState.PlayerCargoPercentage);
+        UIManager.UISystem.ChangeFuelValue(GameState.PlayerFuelPercentage);
     }
 
     public void GenerateMissionList(Mission[] missions)
