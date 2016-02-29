@@ -44,7 +44,7 @@ public class Weapon : MonoBehaviour
 		for( int count = 0; count < mActive.Count; count++ )
 		{
 			Vector3 position = mActive[count].transform.position;
-			position.y += GameLogic.GameDeltaTime * GameLogic.BulletSpeed;
+			position.y += GameLogic.GameDeltaTime; //TODO: Add speed parameter
 			mActive[count].transform.position = position;
 			if( position.y > GameLogic.ScreenHeight * 0.5f )
 			{

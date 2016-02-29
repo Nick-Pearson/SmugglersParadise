@@ -11,6 +11,9 @@ public static class GameState {
     public static Planet CurrentPlanet;
     public static string ShipName;
 
+    //global game properties
+    public enum Column { One, Two, Three, NumColumns }
+
     public static void LoadGame(string GameName)
     {
         mGameName = GameName;

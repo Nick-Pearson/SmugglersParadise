@@ -14,7 +14,7 @@ public class PlayerCharacter : MonoBehaviour
     private float mTargetPositon;
     private float mStartPosition;
     private float mColumnSize;
-    private int mColumn = 1;
+    private GameState.Column mColumn = GameState.Column.Two;
     private float mColumnTime = 0; //timer for smooth movement
 
     private float mGameStartTime;
@@ -74,7 +74,7 @@ public class PlayerCharacter : MonoBehaviour
         mPhysics = GetComponent<SpacePhysics>();
 
         //setup column parameters
-        mColumnSize = (GameLogic.ScreenHeight * Camera.main.aspect * 0.8f) / 3;
+        mColumnSize = (GameLogic.ScreenHeight * Camera.main.aspect * 0.8f) / (int)GameState.Column.NumColumns;
 
         //Setup our roation quarternions
         mZeroRotation = transform.rotation;
@@ -127,7 +127,6 @@ public class PlayerCharacter : MonoBehaviour
         Physics.Mass = ShipAddonMass + PlayerFuelAmount;
 
         //move ourselves to the right column
-        Debug.Log(mColumnTime + ", " + GameLogic.GameDeltaTime + ", " + mPhysics.Velocity + ", " + ShipHandling);
         mColumnTime += GameLogic.GameDeltaTime * (Mathf.Clamp(mPhysics.Velocity,0, 100) / ShipHandling);
         Vector3 pos = transform.position;
         pos.x = Mathf.SmoothStep(mStartPosition, mTargetPositon, mColumnTime);
@@ -170,7 +169,7 @@ public class PlayerCharacter : MonoBehaviour
 
     public void MoveLeft()
     {
-        if(mColumn != 0)
+        if(mColumn != GameState.Column.One)
         {
             mColumn--;
             mStartRotation = transform.rotation;
@@ -183,7 +182,7 @@ public class PlayerCharacter : MonoBehaviour
 
     public void MoveRight()
     {
-        if (mColumn != 2)
+        if (mColumn != GameState.Column.Three)
         {
             mColumn++;
             mStartRotation = transform.rotation;

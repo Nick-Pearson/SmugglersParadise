@@ -73,14 +73,13 @@
     <Compile Include="Assets\Scripts\BackgroundScenery.cs" />
     <Compile Include="Assets\Scripts\CameraUtils.cs" />
     <Compile Include="Assets\Scripts\CreateMesh.cs" />
-    <Compile Include="Assets\Scripts\DifficultyCurve.cs" />
-    <Compile Include="Assets\Scripts\EnemyFactory.cs" />
     <Compile Include="Assets\Scripts\EnemyWave.cs" />
     <Compile Include="Assets\Scripts\GameInput.cs" />
     <Compile Include="Assets\Scripts\GameLogic.cs" />
     <Compile Include="Assets\Scripts\GameState.cs" />
     <Compile Include="Assets\Scripts\MenuSystem.cs" />
     <Compile Include="Assets\Scripts\Mission.cs" />
+    <Compile Include="Assets\Scripts\ObsticalFactory.cs" />
     <Compile Include="Assets\Scripts\Planet.cs" />
     <Compile Include="Assets\Scripts\PlanetFactory.cs" />
     <Compile Include="Assets\Scripts\PlayerCharacter.cs" />
