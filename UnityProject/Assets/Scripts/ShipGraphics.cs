@@ -8,43 +8,11 @@ public class ShipGraphics : MonoBehaviour {
     private GameObject[] mEngineEffects = new GameObject[0];
     private PlayerCharacter mPlayer;
 
-    void Awake()
+    void Start()
     {
-        BaseAddon = buildBasicShip();
+        BaseAddon = GameState.PlayerAddons;
         GenerateShipGraphics();
         mPlayer = GetComponent<PlayerCharacter>();
-    }
-
-    Addon buildBasicShip()
-    {
-        Addon fd = new Mk1FlightDeck();
-        Addon cg = new Mk1Cargo();
-        Addon cg2 = new Mk1Cargo();
-        Addon em = new Mk1EngineMount();
-        Addon e1 = new Mk1Engine();
-        Addon e2 = new Mk1Engine();
-        Addon em2 = new Mk1EngineMount();
-        Addon e3 = new Mk1Engine();
-        Addon e4 = new Mk1Engine();
-
-        Addon e5 = new Mk2Engine();
-
-        em.attach(Addon.AttachPosition.Left, e1);
-        em.attach(Addon.AttachPosition.Right, e2);
-        em.attach(Addon.AttachPosition.Bottom, e5);
-
-        cg.attach(Addon.AttachPosition.Bottom, em);
-
-        cg2.attach(Addon.AttachPosition.Bottom, cg);
-
-        em2.attach(Addon.AttachPosition.Left, e3);
-        em2.attach(Addon.AttachPosition.Right, e4);
-
-        em2.attach(Addon.AttachPosition.Bottom, cg2);
-
-        fd.attach(Addon.AttachPosition.Bottom, em2);
-
-        return fd;
     }
 
     void GenerateShipGraphics()

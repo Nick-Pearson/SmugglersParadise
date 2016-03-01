@@ -153,6 +153,9 @@ public class GameLogic : MonoBehaviour
         //pause the game
         Paused = true;
         mGameStatus = State.EndGame;
+
+        GameState.CurrentPlanet = Destination;
+
         OnStateChange(mGameStatus);
 
         yield return new WaitForSeconds(TIME_UNTIL_LEVEL_LOAD);

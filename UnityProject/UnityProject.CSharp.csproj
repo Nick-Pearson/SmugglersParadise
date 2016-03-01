@@ -86,6 +86,7 @@
     <Compile Include="Assets\Scripts\SpacePhysics.cs" />
     <Compile Include="Assets\Scripts\UIManager.cs" />
     <Compile Include="Assets\Scripts\UISlider.cs" />
+    <Compile Include="Assets\Scripts\UITabbing.cs" />
     <Compile Include="Assets\Scripts\Weapon.cs" />
     <Compile Include="Assets\Scripts\World.cs" />
   </ItemGroup>

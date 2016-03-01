@@ -88,9 +88,9 @@ public class PlayerCharacter : MonoBehaviour
         GetComponent<ShipGraphics>().BaseAddon.ApplyChanges(this);
 
         // TODO: Fix arbitrary starting values
-        PlayerFuelAmount = PlayerMaxFuel;
+        PlayerFuelAmount = GameState.PlayerFuel;
         PlayerThrustPercentage = 0.0f;
-        ShipCargoMass = ShipMaxCargo;
+        ShipCargoMass = GameState.PlayerCargo;
         Physics.Mass = ShipAddonMass + PlayerFuelAmount;
 
         //signup for game state changes
