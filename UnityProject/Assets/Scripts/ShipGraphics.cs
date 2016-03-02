@@ -28,16 +28,28 @@ public class ShipGraphics : MonoBehaviour {
 
     float BuildAddonGraphics(float offsetX, float offsetY, Addon a, GameObject parent)
     {
-        if (a == null)
+        if (a is Empty)
             return 0;
 
-        //cache the properties we will need
-        float width = a.getWidth();
-        float height = a.getHeight();
-        
-        GameObject art = Resources.Load<GameObject>("Player/" + a.getName());
-        GameObject instance = Instantiate(art, new Vector3(offsetX, offsetY, 0), Quaternion.identity) as GameObject;
-        instance.transform.parent = parent.transform;
+        float width, height;
+        GameObject instance;
+        if (!(a is Base))
+        {
+            //cache the properties we will need
+            width = a.getWidth();
+            height = a.getHeight();
+
+            GameObject art = Resources.Load<GameObject>("Player/" + a.getName());
+            instance = Instantiate(art, new Vector3(offsetX, offsetY, 0), Quaternion.identity) as GameObject;
+            instance.transform.parent = parent.transform;
+        }
+        else
+        {
+            instance = parent;
+            width = 0;
+            height = 0;
+        }
+
 
         Addon[] attachments = a.getAttachments();
 

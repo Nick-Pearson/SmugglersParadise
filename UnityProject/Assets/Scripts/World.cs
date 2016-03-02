@@ -25,8 +25,32 @@ public class World {
         }
     }
 
-    //an 'any' planet wildcard object for use in missions
-    public static Planet Any = new Planet("Any", new Vector2(0, 0));
+    //get a random planet
+    public static Planet getRandomPlanet(Planet notInclude)
+    {
+        Planet selection;
+
+        do
+        {
+            selection = getRandomPlanet();
+        } while (selection == notInclude);
+
+        return selection;
+    }
+
+    public static Planet getRandomPlanet()
+    {
+        switch (Random.Range(0, 2))
+        {
+            case 0:
+                 return Egoras;
+            default:
+                return Hellzine;
+        }
+    }
+
+//an 'any' planet wildcard object for use in missions
+public static Planet Any = new Planet("Any", new Vector2(0, 0));
 
     //special case 'planet' where we are in space
     public static Planet Space = new Planet("Space", new Vector2(0, 0));

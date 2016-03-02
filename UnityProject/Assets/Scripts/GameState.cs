@@ -14,15 +14,16 @@ public class GameState : MonoBehaviour {
     public static Planet CurrentPlanet;
     public static string ShipName;
     public static float PlayerFuelPercentage { get { return PlayerMaxFuel == 0 ? 0 : PlayerFuel / PlayerMaxFuel; } }
-    public static float PlayerCargoPercentage { get { return PlayerMaxCargo == 0 ? 0 : PlayerCargo / PlayerMaxCargo; } }
+    public static float RefuelCost { get { return Mathf.Round((PlayerMaxFuel - PlayerFuel) * FUEL_COST); } }
+    public static float PlayerCargoPercentage { get { return PlayerMaxCargo == 0 ? 0 : PlayerCargo.GetAmount() / PlayerMaxCargo; } }
 
     public static float PlayerFuel;
     public static float PlayerMaxFuel;
-    public static float PlayerCargo;
+    public static CargoDef PlayerCargo;
     public static float PlayerMaxCargo;
     public static Addon PlayerAddons;
 
-    public static int PlayerMoney { get; private set; }
+    public static int PlayerMoney;
     public static int PlayerReputaion { get; private set; }
 
     //game constants
@@ -103,7 +104,7 @@ public class GameState : MonoBehaviour {
         ShipName = "The Jolly Hamburger";
         PlayerFuel = 800;
         PlayerMaxFuel = 800;
-        PlayerCargo = 0;
+        PlayerCargo = new CargoDef();
         PlayerMaxCargo = 50;
         PlayerMoney = 1000;
 
@@ -125,6 +126,10 @@ public class GameState : MonoBehaviour {
 
         fd.attach(Addon.AttachPosition.Bottom, cg);
 
-        return fd;
+        Addon b = new Base();
+
+        b.attach(Addon.AttachPosition.Bottom, fd);
+
+        return b;
     }
 }

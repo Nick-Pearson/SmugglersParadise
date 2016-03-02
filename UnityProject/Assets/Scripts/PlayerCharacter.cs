@@ -90,7 +90,7 @@ public class PlayerCharacter : MonoBehaviour
         // TODO: Fix arbitrary starting values
         PlayerFuelAmount = GameState.PlayerFuel;
         PlayerThrustPercentage = 0.0f;
-        ShipCargoMass = GameState.PlayerCargo;
+        ShipCargoMass = GameState.PlayerCargo.GetAmount();
         Physics.Mass = ShipAddonMass + PlayerFuelAmount;
 
         //signup for game state changes
@@ -148,10 +148,6 @@ public class PlayerCharacter : MonoBehaviour
         {
             //update the game state with our fuel
             GameState.PlayerFuel = PlayerFuelAmount;
-            GameState.PlayerMaxFuel = PlayerMaxFuel;
-            GameState.PlayerCargo = ShipCargoMass;
-            GameState.PlayerMaxCargo = ShipMaxCargo;
-            GameState.PlayerAddons = GetComponent<ShipGraphics>().BaseAddon; //TODO : THIS LINE CAUSES PROBLEMS
         }
     }
 

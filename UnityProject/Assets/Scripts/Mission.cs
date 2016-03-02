@@ -1,25 +1,7 @@
-﻿public class Mission {
-    //TODO: Perhaps move into a class?
-    public enum Character
-    {
-        Player,
+﻿//base class for all missions
+using System;
 
-        //friendlies
-        Trader_Joe,
-        Trader_Pete,
-        Steve_the_Rifleman,
-
-        //pirates
-        Bluebeard,
-        Davoom
-    }
-
-    public enum MissionType
-    {
-        Cargo,
-        Passenger,
-        Attack
-    }
+public abstract class Mission {
 
     private Planet mTargetPlanet;
     private int mCount = 0;
@@ -29,15 +11,11 @@
     public string Description { get; private set; }
     public int ReputationValue { get; private set; }
     public int Reward { get; private set; }
-    public Character Client { get; private set; }
-    public MissionType Type { get; private set; }
 
-    public Mission(string name, string description, MissionType mtype, Character client, Planet targetPlanet, int reward=100, int reputationValue=100, int reqCount=1)
+    public Mission(string name, string description, Planet targetPlanet, int reward=100, int reputationValue=100, int reqCount=1)
     {
         Name = name;
         Description = description;
-        Type = mtype;
-        Client = client;
         ReputationValue = reputationValue;
         Reward = reward;
         mTargetPlanet = targetPlanet;
@@ -45,7 +23,7 @@
     }
 
     //are we in the right state to complete this mission
-    public bool isMissionCompletable()
+    public virtual bool isMissionCompletable()
     {
         if (GameState.CurrentPlanet != mTargetPlanet || mCount < mTarget)
             return false;
@@ -54,8 +32,34 @@
     }
 
     //we have done the task of the mission one time
-    public void addMissionCount(int amount = 1)
+    private void addMissionCount(int amount = 1)
     {
         mCount += amount;
+    }
+
+    public abstract void TakeMission();
+}
+
+//cargo missions
+public class CargoMission : Mission
+{
+    private CargoDef.CargoType cType;
+    private int cAmount;
+
+    public CargoMission(string name, string description, Planet targetPlanet, CargoDef.CargoType cargo, int amount=1, int reward=100, int reputationValue=100) : base(name, description, targetPlanet, reward, reputationValue, 0)
+    {
+        cType = cargo;
+        cAmount = amount;
+    }
+
+    public override bool isMissionCompletable()
+    {
+        return (GameState.PlayerCargo.GetAmount(cType) >= cAmount) && (base.isMissionCompletable());
+    }
+
+    public override void TakeMission()
+    {
+        GameState.PlayerCargo.Add(cType, cAmount);
+        UIManager.UISystem.ChangeCargoValue(GameState.PlayerCargoPercentage);
     }
 }

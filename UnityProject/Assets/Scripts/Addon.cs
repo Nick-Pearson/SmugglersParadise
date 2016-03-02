@@ -1,5 +1,7 @@
 ﻿//base class for all ship upgrades
 
+using System;
+
 public abstract class Addon {
     //nice enum to shield indexing the bool/Addon array ourselves
     public enum AttachPosition
@@ -51,8 +53,9 @@ public abstract class Addon {
     public virtual bool canAttach(AttachPosition pos) { return canAttach()[(int)pos]; }
 
     //what is attached (one addon per slot)
+    public Addon Parent;
     public Addon[] getAttachments() { return mAttachments; }
-    public Addon getAttachment(AttachPosition pos) { return mAttachments.Length == 0 ? null : mAttachments[(int)pos]; }
+    public Addon getAttachment(AttachPosition pos) { return mAttachments.Length == 0 ? new Empty(this) : mAttachments[(int)pos]; }
 
     //attach an addon to us
     public void attach(int pos, Addon a)
@@ -61,9 +64,10 @@ public abstract class Addon {
         if(canAttach()[pos])
         {
             if (mAttachments.Length == 0)
-                mAttachments = new Addon[4] { null, null, null, null };
+                mAttachments = new Addon[4] { new Empty(this), new Empty(this), new Empty(this), new Empty(this) };
 
             mAttachments[pos] = a;
+            a.Parent = this;
         }
         else
         {
@@ -75,6 +79,42 @@ public abstract class Addon {
     {
         attach((int)pos, a);
     }
+}
+
+//these two are required to make the ui work nicely
+
+//addon to represent an empty slot
+public class Empty : Addon
+{
+    public Empty(Addon parent)
+    {
+        Parent = parent;
+    }
+
+    public override void applyBuffs(PlayerCharacter player) { }
+    public override float getHeight() { return 0; }
+    public override int getMass() { return 0; }
+    public override string getName() { return "Empty Slot"; }
+    public override int getPrice() { return 0; }
+    public override int getValue() { return 0; }
+    public override float getWidth() { return 0; }
+}
+
+//addon to represent the base of the ship
+public class Base : Addon
+{
+    public Base()
+    {
+    }
+
+    public override void applyBuffs(PlayerCharacter player) { }
+    public override float getHeight() { return 0; }
+    public override int getMass() { return 0; }
+    public override string getName() { return "Base"; }
+    public override int getPrice() { return 0; }
+    public override int getValue() { return 0; }
+    public override float getWidth() { return 0; }
+    public override bool[] canAttach() { return new bool[4] { false, true, false, false }; }
 }
 
 //base class for all engines

@@ -39,12 +39,13 @@ public class MenuSystem : MonoBehaviour {
     private RectTransform[] mCompletedMissionUIObjects;
 
     private int mCurrentSelectedMission = -1;
-    private Button mCurrentlySelectedShipAddon = null;
+    private Button mCurrentlySelectedShipAddonButton = null;
+    private Addon mCurrentlySelectedShipAddon = null;
     private int mCurrentlySelectedStoreAddon = -1;
     private bool mIsBuying = false;
 
-    private Addon[] mAvailibleAddons;
-    private RectTransform[] mAddonUIElements;
+    private List<Addon> mAvailibleAddons = new List<Addon>();
+    private List<RectTransform> mAddonUIElements = new List<RectTransform>();
     private List<RectTransform> mShipLayoutUIElements = new List<RectTransform>();
     private List<RectTransform> mShipLayoutEmptySlots = new List<RectTransform>();
 
@@ -85,8 +86,8 @@ public class MenuSystem : MonoBehaviour {
         //TODO: Use this to resize container?
         GenerateShipLayout(GameState.PlayerAddons, AddonListContainer);
 
-        mAvailibleAddons = GetRandomAddons(Random.Range(3, 8));
-        mAddonUIElements = GenerateAddonList(mAvailibleAddons, ShopListContainer);
+        mAvailibleAddons.AddRange(GetRandomAddons(Random.Range(3, 8)));
+        mAddonUIElements.AddRange(GenerateAddonList(mAvailibleAddons.ToArray(), ShopListContainer));
 
         PopulateUI();
     }
@@ -97,7 +98,7 @@ public class MenuSystem : MonoBehaviour {
         UIManager.UISystem.ChangeFuelValue(GameState.PlayerFuelPercentage);
 
         PlanetWelcomeText.text = "Welcome to " + GameState.CurrentPlanet.Name;
-        FuelText.text = "Re-Fuel (cr. " + Mathf.Round((GameState.PlayerMaxFuel - GameState.PlayerFuel) * GameState.FUEL_COST) + ")";
+        FuelText.text = "Re-Fuel (cr. " + GameState.RefuelCost + ")";
         ShipNameText.text = GameState.ShipName;
         MoneyText.text = "cr. " + GameState.PlayerMoney;
     }
@@ -133,58 +134,67 @@ public class MenuSystem : MonoBehaviour {
 
     //creates ui elements for our ship layout
     //returns the number of columns this ship uses
-    public int GenerateShipLayout(Addon baseAddon, RectTransform container, float offsetX = 0, float offsetY = 0, Addon parent = null, Addon.AttachPosition pos = Addon.AttachPosition.Bottom)
+    public int GenerateShipLayout(Addon baseAddon, RectTransform container, float offsetX = 0, float offsetY = 0, Addon.AttachPosition pos = Addon.AttachPosition.Bottom)
     {
-        RectTransform addonUI = Instantiate(AddonPrefab) as RectTransform;
-        addonUI.SetParent(container);
-        addonUI.anchoredPosition3D = new Vector3(offsetX, -(addonUI.rect.height / 2) - UI_PADDING + offsetY, 0);
-        addonUI.localScale = new Vector3(1, 1, 1);
-
-        //if we have no addon make this an empty slot
-        if (baseAddon == null)
+        float width, height;
+        if (!(baseAddon is Base))
         {
-            addonUI.gameObject.name = "Empty";
-            addonUI.FindChild("Text").GetComponent<Text>().text = "Empty Slot";
-            addonUI.GetComponent<Button>().interactable = false;
+            RectTransform addonUI = Instantiate(AddonPrefab) as RectTransform;
+            addonUI.SetParent(container);
+            addonUI.anchoredPosition3D = new Vector3(offsetX, -(addonUI.rect.height / 2) - UI_PADDING + offsetY, 0);
+            addonUI.localScale = new Vector3(1, 1, 1);
 
-            //add hooks to the button event
-            Button.ButtonClickedEvent selectEvent = new Button.ButtonClickedEvent();
-            selectEvent.AddListener(delegate { OnClickedEmpty(parent, pos, addonUI.gameObject); });
+            //if we have no addon make this an empty slot
+            if (baseAddon is Empty)
+            {
+                addonUI.gameObject.name = "Empty";
+                addonUI.FindChild("Text").GetComponent<Text>().text = "Empty Slot";
+                addonUI.GetComponent<Button>().interactable = false;
 
-            addonUI.GetComponent<Button>().onClick = selectEvent;
-            addonUI.GetComponent<Button>().colors = buildColorBlock(NormalColor);
+                //add hooks to the button event
+                Button.ButtonClickedEvent selectEvent = new Button.ButtonClickedEvent();
+                selectEvent.AddListener(delegate { OnClickedEmpty(baseAddon.Parent, pos, addonUI.gameObject); });
 
-            mShipLayoutEmptySlots.Add(addonUI);
+                addonUI.GetComponent<Button>().onClick = selectEvent;
+                addonUI.GetComponent<Button>().colors = buildColorBlock(NormalColor);
 
-            return 1;
+                mShipLayoutEmptySlots.Add(addonUI);
+
+                return 1;
+            }
+            else
+            {
+                addonUI.gameObject.name = baseAddon.getName();
+                addonUI.FindChild("Text").GetComponent<Text>().text = baseAddon.getName();
+
+                //add hooks to the button event
+                Button.ButtonClickedEvent selectEvent = new Button.ButtonClickedEvent();
+                selectEvent.AddListener(delegate { OnAddonSelected(addonUI, baseAddon, pos); });
+
+                addonUI.GetComponent<Button>().onClick = selectEvent;
+                addonUI.GetComponent<Button>().colors = buildColorBlock(NormalColor);
+
+                mShipLayoutUIElements.Add(addonUI);
+            }
+
+            width = addonUI.rect.width;
+            height = addonUI.rect.height;
         }
         else
         {
-            addonUI.gameObject.name = baseAddon.getName();
-            addonUI.FindChild("Text").GetComponent<Text>().text = baseAddon.getName();
-
-            //add hooks to the button event
-            Button.ButtonClickedEvent selectEvent = new Button.ButtonClickedEvent();
-            selectEvent.AddListener(delegate { OnAddonSelected(addonUI, baseAddon, parent, pos); });
-
-            addonUI.GetComponent<Button>().onClick = selectEvent;
-            addonUI.GetComponent<Button>().colors = buildColorBlock(NormalColor);
-
-            mShipLayoutUIElements.Add(addonUI);
+            width = 0;
+            height = 0;
         }
 
-        float width = addonUI.rect.width;
-        float height = addonUI.rect.height;
         int rowsLeft = 0, rowsRight = 0, rowsBottom = 0;
-
         if (baseAddon.canAttach(Addon.AttachPosition.Bottom))
-            rowsBottom = GenerateShipLayout(baseAddon.getAttachment(Addon.AttachPosition.Bottom), container, offsetX, offsetY - height, baseAddon);
+            rowsBottom = GenerateShipLayout(baseAddon.getAttachment(Addon.AttachPosition.Bottom), container, offsetX, offsetY - height);
 
         if (baseAddon.canAttach(Addon.AttachPosition.Left) && pos != Addon.AttachPosition.Right)
-            rowsLeft = GenerateShipLayout(baseAddon.getAttachment(Addon.AttachPosition.Left), container, offsetX + width, offsetY, baseAddon, Addon.AttachPosition.Left);
+            rowsLeft = GenerateShipLayout(baseAddon.getAttachment(Addon.AttachPosition.Left), container, offsetX + width, offsetY, Addon.AttachPosition.Left);
 
         if (baseAddon.canAttach(Addon.AttachPosition.Right) && pos != Addon.AttachPosition.Left)
-            rowsRight = GenerateShipLayout(baseAddon.getAttachment(Addon.AttachPosition.Right), container, offsetX - width, offsetY, baseAddon, Addon.AttachPosition.Right);
+            rowsRight = GenerateShipLayout(baseAddon.getAttachment(Addon.AttachPosition.Right), container, offsetX - width, offsetY, Addon.AttachPosition.Right);
         
         //sum of the other objects rows
         return rowsLeft + rowsRight + rowsBottom;
@@ -291,6 +301,8 @@ public class MenuSystem : MonoBehaviour {
         }
 
         mCurrentSelectedMission = -1;
+
+        mAvailibleMissions[missionID].TakeMission();
     }
 
     void OnCompletedMissionClicked(int missionID)
@@ -298,15 +310,16 @@ public class MenuSystem : MonoBehaviour {
         GameState.CompleteMission(missionID);
     }
 
-    void OnAddonSelected(RectTransform uiElm, Addon addon, Addon parent, Addon.AttachPosition pos)
+    void OnAddonSelected(RectTransform uiElm, Addon addon, Addon.AttachPosition pos)
     {
         Button butt = uiElm.GetComponent<Button>();
 
-        if (mCurrentlySelectedShipAddon != null)
-            mCurrentlySelectedShipAddon.colors = buildColorBlock(NormalColor);
+        if (mCurrentlySelectedShipAddonButton != null)
+            mCurrentlySelectedShipAddonButton.colors = buildColorBlock(NormalColor);
 
         butt.colors = buildColorBlock(SelectedColor);
-        mCurrentlySelectedShipAddon = butt;
+        mCurrentlySelectedShipAddonButton = butt;
+        mCurrentlySelectedShipAddon = addon;
 
         //activate the required buttons
         SellAddonButton.interactable = true;
@@ -315,48 +328,93 @@ public class MenuSystem : MonoBehaviour {
         /* we can only move to a place if
         1. there is an addon to replace there
         2. the posiioning is compatible */
+        UpAddonButton.interactable = false;
+        LeftAddonButton.interactable = false;
+        RightAddonButton.interactable = false;
+        DownAddonButton.interactable = false;
+
         Addon bottom = addon.getAttachment(Addon.AttachPosition.Bottom);
-        if (bottom != null && bottom.canAttach(Addon.AttachPosition.Bottom) && addon.canAttach(Addon.AttachPosition.Top))
+        if (!(bottom is Empty) && bottom.canAttach(Addon.AttachPosition.Bottom) && addon.canAttach(Addon.AttachPosition.Top))
             DownAddonButton.interactable = true;
-        else
-            DownAddonButton.interactable = false;
-
+        
         //is our parent above us??
-        if(pos == Addon.AttachPosition.Bottom && parent != null)
+        if (pos == Addon.AttachPosition.Bottom && addon.Parent != null && !(addon.Parent is Empty))
         {
-            if (parent.canAttach(Addon.AttachPosition.Top) && addon.canAttach(Addon.AttachPosition.Bottom))
+            if (addon.Parent.canAttach(Addon.AttachPosition.Top) && addon.canAttach(Addon.AttachPosition.Bottom))
                 UpAddonButton.interactable = true;
-            else
-                UpAddonButton.interactable = false;
 
-            if (parent.canAttach(Addon.AttachPosition.Left) && addon.canAttach(Addon.AttachPosition.Right) && addon.getAttachment(Addon.AttachPosition.Left) == null)
+            if (addon.Parent.canAttach(Addon.AttachPosition.Left) && addon.canAttach(Addon.AttachPosition.Right) && addon.getAttachment(Addon.AttachPosition.Left) == null)
                 LeftAddonButton.interactable = true;
-            else
-                LeftAddonButton.interactable = false;
 
-            if (parent.canAttach(Addon.AttachPosition.Right) && addon.canAttach(Addon.AttachPosition.Left) && addon.getAttachment(Addon.AttachPosition.Right) == null)
+            if (addon.Parent.canAttach(Addon.AttachPosition.Right) && addon.canAttach(Addon.AttachPosition.Left) && addon.getAttachment(Addon.AttachPosition.Right) == null)
                 RightAddonButton.interactable = true;
-            else
-                RightAddonButton.interactable = false;
         }
     }
 
-    void OnMovePart(int direction)
+    public void OnMovePart(int direction)
     {
-        throw new System.NotImplementedException();
+        switch(direction)
+        {
+            case 0:
+                Addon parent = mCurrentlySelectedShipAddon.Parent;
+                parent.attach(Addon.AttachPosition.Bottom, mCurrentlySelectedShipAddon.getAttachment(Addon.AttachPosition.Bottom));
+
+                //if null we have reached the top
+                if (parent.Parent is Base)
+                {
+                    GameState.PlayerAddons = mCurrentlySelectedShipAddon;
+                }
+                else
+                {
+                    parent.Parent.attach(Addon.AttachPosition.Bottom, mCurrentlySelectedShipAddon);
+                }
+                mCurrentlySelectedShipAddon.attach(Addon.AttachPosition.Bottom, parent);
+                break;
+            case 1:
+                parent = mCurrentlySelectedShipAddon.Parent;
+                Addon children = mCurrentlySelectedShipAddon.getAttachment(Addon.AttachPosition.Bottom);
+
+                parent.attach(Addon.AttachPosition.Bottom, children);
+
+                mCurrentlySelectedShipAddon.attach(Addon.AttachPosition.Bottom, children.getAttachment(Addon.AttachPosition.Bottom));
+                children.attach(Addon.AttachPosition.Bottom, mCurrentlySelectedShipAddon);
+                break;
+            case 2:
+                parent = mCurrentlySelectedShipAddon.Parent;
+
+                parent.attach(Addon.AttachPosition.Bottom, mCurrentlySelectedShipAddon.getAttachment(Addon.AttachPosition.Bottom));
+                parent.attach(Addon.AttachPosition.Left, mCurrentlySelectedShipAddon);
+                mCurrentlySelectedShipAddon.attach(Addon.AttachPosition.Bottom, new Empty(mCurrentlySelectedShipAddon));
+                break;
+            case 3:
+                break;
+        }
+        
+        mCurrentlySelectedShipAddonButton.colors = buildColorBlock(NormalColor);
+        mCurrentlySelectedShipAddonButton = null;
+
+        UpAddonButton.interactable = false;
+        DownAddonButton.interactable = false;
+        LeftAddonButton.interactable = false;
+        RightAddonButton.interactable = false;
+        SellAddonButton.interactable = false;
+
+        RebuildShipUI();
     }
 
     void OnClickedEmpty(Addon parent, Addon.AttachPosition pos, GameObject self)
     {
+        ChangeMoney(-mAvailibleAddons[mCurrentlySelectedStoreAddon].getPrice());
+
         parent.attach(pos, mAvailibleAddons[mCurrentlySelectedStoreAddon]);
+        mAvailibleAddons[mCurrentlySelectedStoreAddon] = null;
 
         RectTransform emptyTransform = self.GetComponent<RectTransform>();
-        GenerateShipLayout(mAvailibleAddons[mCurrentlySelectedStoreAddon], AddonListContainer, emptyTransform.anchoredPosition3D.x, emptyTransform.anchoredPosition3D.y + (emptyTransform.rect.height / 2) + UI_PADDING, parent, pos);
         mAddonUIElements[mCurrentlySelectedStoreAddon].gameObject.SetActive(false);
 
         mCurrentlySelectedStoreAddon = -1;
 
-        //TODO: add to lists of ship addons
+        RebuildShipUI();
 
         //disable buying mode
         mIsBuying = false;
@@ -401,7 +459,35 @@ public class MenuSystem : MonoBehaviour {
 
     public void OnClickedSellButton()
     {
-        throw new System.NotImplementedException();
+        //work out how we are attached and clear that attachment
+        if(mCurrentlySelectedShipAddon.Parent.getAttachment(Addon.AttachPosition.Bottom) == mCurrentlySelectedShipAddon)
+            mCurrentlySelectedShipAddon.Parent.attach(Addon.AttachPosition.Bottom, new Empty(mCurrentlySelectedShipAddon.Parent));
+        if (mCurrentlySelectedShipAddon.Parent.getAttachment(Addon.AttachPosition.Left) == mCurrentlySelectedShipAddon)
+            mCurrentlySelectedShipAddon.Parent.attach(Addon.AttachPosition.Left, new Empty(mCurrentlySelectedShipAddon.Parent));
+        else if (mCurrentlySelectedShipAddon.Parent.getAttachment(Addon.AttachPosition.Right) == mCurrentlySelectedShipAddon)
+            mCurrentlySelectedShipAddon.Parent.attach(Addon.AttachPosition.Right, new Empty(mCurrentlySelectedShipAddon.Parent));
+
+        ChangeMoney(mCurrentlySelectedShipAddon.getValue());
+
+        //add item to the shop
+        mAvailibleAddons.Add(mCurrentlySelectedShipAddon);
+        foreach (Addon a in mAvailibleAddons)
+            if (a == null)
+                mAvailibleAddons.Remove(a);
+
+        mAddonUIElements.Clear();
+        mAddonUIElements.AddRange(GenerateAddonList(mAvailibleAddons.ToArray(), ShopListContainer));
+
+        //reset the ship layout ui
+        mCurrentlySelectedShipAddonButton = null;
+
+        UpAddonButton.interactable = false;
+        DownAddonButton.interactable = false;
+        LeftAddonButton.interactable = false;
+        RightAddonButton.interactable = false;
+        SellAddonButton.interactable = false;
+
+        RebuildShipUI();
     }
 
     public void OnClickedTakeoff()
@@ -411,8 +497,16 @@ public class MenuSystem : MonoBehaviour {
 
     public void OnClickedRefuel()
     {
+        ChangeMoney(-(int)GameState.RefuelCost);
         GameState.PlayerFuel = GameState.PlayerMaxFuel;
         UIManager.UISystem.ChangeFuelValue(1);
+        FuelText.text = "Refuel (cr. 0)";
+    }
+
+    void ChangeMoney(int amount)
+    {
+        GameState.PlayerMoney += amount;
+        MoneyText.text = "cr. " + GameState.PlayerMoney;
     }
 
     void ToggleEmptys(bool show)
@@ -443,7 +537,18 @@ public class MenuSystem : MonoBehaviour {
 
         for (int i = 0; i < amount; i++)
         {
-            missions[i] = new Mission("M" + i, "A randomised mission", Mission.MissionType.Cargo, Mission.Character.Steve_the_Rifleman, World.Egoras);
+            if (Random.value >= 0f)
+            {
+                int cargoAmount = Random.Range(50, 500);
+                CargoDef.CargoType cargo = (CargoDef.CargoType)Random.Range(0, 9);
+                Planet target = World.getRandomPlanet(GameState.CurrentPlanet);
+
+                missions[i] = new CargoMission(cargo + " to " + target.Name, "Transport " + cargoAmount + "tons of " + cargo.ToString() + " to " + target.Name, target, cargo, amount, amount * Random.Range((int)cargo + 1, ((int)cargo + 1) * 10));
+            }
+            else
+            {
+                //TODO : Fill in with other types
+            }
         }
 
         return missions;
@@ -455,7 +560,7 @@ public class MenuSystem : MonoBehaviour {
 
         for (int i = 0; i < amount; i++)
         {
-            addons[i] = GetRandomAddon(Random.Range(0, 4));
+            addons[i] = GetRandomAddon(Random.Range(0, 5));
         }
 
         return addons;
@@ -475,6 +580,25 @@ public class MenuSystem : MonoBehaviour {
                 return new Mk1FlightDeck();
             default:
                 return new Mk2Engine();
+        }
+    }
+
+    void RebuildShipUI()
+    {
+        //remove the ui
+        DropChildren(AddonListContainer);
+        mShipLayoutUIElements.Clear();
+        mShipLayoutEmptySlots.Clear();
+
+        //rebuild the ui
+        GenerateShipLayout(GameState.PlayerAddons, AddonListContainer);
+    }
+
+    void DropChildren(RectTransform tr)
+    {
+        for (int i = 0; i < tr.childCount; i++)
+        {
+            Destroy(tr.GetChild(i).gameObject); //TODO Make this efficient...
         }
     }
 }
