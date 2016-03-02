@@ -147,7 +147,11 @@ public class PlayerCharacter : MonoBehaviour
         else if(s == GameLogic.State.EndGame)
         {
             //update the game state with our fuel
-            GameState.UpdatePlayerProperties(this);
+            GameState.PlayerFuel = PlayerFuelAmount;
+            GameState.PlayerMaxFuel = PlayerMaxFuel;
+            GameState.PlayerCargo = ShipCargoMass;
+            GameState.PlayerMaxCargo = ShipMaxCargo;
+            GameState.PlayerAddons = GetComponent<ShipGraphics>().BaseAddon; //TODO : THIS LINE CAUSES PROBLEMS
         }
     }
 

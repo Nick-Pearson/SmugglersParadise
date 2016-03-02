@@ -94,16 +94,6 @@ public class GameState : MonoBehaviour {
         mActiveMissions.Remove(m);
     }
 
-    //capture the properties from the player itself
-    public static void UpdatePlayerProperties(PlayerCharacter pc)
-    {
-        PlayerFuel = pc.PlayerFuelAmount;
-        PlayerMaxFuel = pc.PlayerMaxFuel;
-        PlayerCargo = pc.ShipCargoMass;
-        PlayerMaxCargo = pc.ShipMaxCargo;
-        PlayerAddons = pc.GetComponent<ShipGraphics>().BaseAddon;
-    }
-
     //create a new profile
     public static void CreateNewGame()
     {

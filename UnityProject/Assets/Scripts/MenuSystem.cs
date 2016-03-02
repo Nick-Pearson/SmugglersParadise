@@ -399,6 +399,22 @@ public class MenuSystem : MonoBehaviour {
         }
     }
 
+    public void OnClickedSellButton()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public void OnClickedTakeoff()
+    {
+        Application.LoadLevel("Game");
+    }
+
+    public void OnClickedRefuel()
+    {
+        GameState.PlayerFuel = GameState.PlayerMaxFuel;
+        UIManager.UISystem.ChangeFuelValue(1);
+    }
+
     void ToggleEmptys(bool show)
     {
         foreach (RectTransform rt in mShipLayoutUIElements)
