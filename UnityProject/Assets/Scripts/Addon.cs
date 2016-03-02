@@ -48,9 +48,11 @@ public abstract class Addon {
 
     //where can things be attached
     public virtual bool[] canAttach() { return new bool[4] { true, true, true, true }; }
+    public virtual bool canAttach(AttachPosition pos) { return canAttach()[(int)pos]; }
 
     //what is attached (one addon per slot)
-    public Addon[] getAttachments() { return mAttachments;  }
+    public Addon[] getAttachments() { return mAttachments; }
+    public Addon getAttachment(AttachPosition pos) { return mAttachments.Length == 0 ? null : mAttachments[(int)pos]; }
 
     //attach an addon to us
     public void attach(int pos, Addon a)
@@ -93,9 +95,9 @@ public class Mk1Engine : Engine
     }
 
     public override int getMass() {  return 80; }
-    public override int getValue() { return 10; }
-    public override int getPrice() { return 50; }
-    public override string getName() { return "Mk1Engine"; }
+    public override int getValue() { return 100; }
+    public override int getPrice() { return 500; }
+    public override string getName() { return "Mk1 Engine"; }
     public override float getHeight() { return 1.15f; }
     public override float getWidth() { return 1; }
     public override bool[] canAttach() { return new bool[4] { false, false, true, true }; }
@@ -111,9 +113,9 @@ public class Mk2Engine : Engine
     }
 
     public override int getMass() { return 80; }
-    public override int getValue() { return 50; }
-    public override int getPrice() { return 250; }
-    public override string getName() { return "Mk2Engine"; }
+    public override int getValue() { return 500; }
+    public override int getPrice() { return 2500; }
+    public override string getName() { return "Mk2 Engine"; }
     public override float getHeight() { return 1.15f; }
     public override float getWidth() { return 1; }
     public override bool[] canAttach() { return new bool[4] { true, false, false, false }; }
@@ -131,9 +133,9 @@ public class Mk1Cargo : Addon
     }
 
     public override int getMass() { return 30; }
-    public override int getValue() { return 15; }
-    public override int getPrice() { return 100; }
-    public override string getName() { return "Mk1Cargo"; }
+    public override int getValue() { return 150; }
+    public override int getPrice() { return 1000; }
+    public override string getName() { return "Mk1 Cargo"; }
     public override float getHeight() { return 2.3f; }
     public override float getWidth() { return 1; }
     public override bool[] canAttach() { return new bool[4] { true, true, false, false }; }
@@ -147,9 +149,9 @@ public class Mk1FlightDeck : Addon
 {
     public override void applyBuffs(PlayerCharacter player) { return; }
     public override int getMass() { return 30; }
-    public override int getValue() { return 100; }
-    public override int getPrice() { return 250; }
-    public override string getName() { return "Mk1FlightDeck"; }
+    public override int getValue() { return 1000; }
+    public override int getPrice() { return 2500; }
+    public override string getName() { return "Mk1 Flight Deck"; }
     public override float getHeight() { return 1.3f; }
     public override float getWidth() { return 1; }
     public override bool[] canAttach() { return new bool[4] { false, true, false, false }; }
@@ -163,9 +165,9 @@ public class Mk1EngineMount : Addon
 {
     public override void applyBuffs(PlayerCharacter player) { }
     public override int getMass() { return 20; }
-    public override int getValue() { return 10; }
-    public override int getPrice() { return 45; }
-    public override string getName() { return "Mk1EngineMount"; }
+    public override int getValue() { return 100; }
+    public override int getPrice() { return 450; }
+    public override string getName() { return "Mk1 Engine Mount"; }
     public override float getHeight() { return 0.517f; }
     public override float getWidth() { return 1; }
 }

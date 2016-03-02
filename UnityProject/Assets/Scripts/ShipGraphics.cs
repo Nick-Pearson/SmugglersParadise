@@ -44,7 +44,6 @@ public class ShipGraphics : MonoBehaviour {
         if (attachments.Length == 0)
             return height;
 
-        BuildAddonGraphics(offsetX, offsetY + height, attachments[0], instance);
         float h1 = BuildAddonGraphics(offsetX, offsetY - height, attachments[1], instance);
         float h2 = BuildAddonGraphics(offsetX + width, offsetY, attachments[2], instance);
         float h3 = BuildAddonGraphics(offsetX - width, offsetY, attachments[3], instance);

@@ -115,7 +115,7 @@ public class GameState : MonoBehaviour {
         PlayerMaxFuel = 800;
         PlayerCargo = 0;
         PlayerMaxCargo = 50;
-        PlayerMoney = 10000;
+        PlayerMoney = 1000;
 
         PlayerAddons = buildBasicShip();
     }
