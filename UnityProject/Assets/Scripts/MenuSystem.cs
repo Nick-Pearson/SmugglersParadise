@@ -414,7 +414,6 @@ public class MenuSystem : MonoBehaviour {
         parent.attach(pos, mAvailibleAddons[mCurrentlySelectedStoreAddon]);
         mAvailibleAddons[mCurrentlySelectedStoreAddon] = null;
 
-        RectTransform emptyTransform = self.GetComponent<RectTransform>();
         mAddonUIElements[mCurrentlySelectedStoreAddon].gameObject.SetActive(false);
 
         mCurrentlySelectedStoreAddon = -1;
@@ -506,6 +505,11 @@ public class MenuSystem : MonoBehaviour {
         GameState.PlayerFuel = GameState.PlayerMaxFuel;
         UIManager.UISystem.ChangeFuelValue(1);
         FuelText.text = "Refuel (cr. 0)";
+    }
+
+    public void OnClickedMainMenu()
+    {
+        SceneManager.LoadScene("MainMenu");
     }
 
     void ChangeMoney(int amount)

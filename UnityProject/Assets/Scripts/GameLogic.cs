@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameLogic : MonoBehaviour
 {
@@ -159,7 +160,7 @@ public class GameLogic : MonoBehaviour
         OnStateChange(mGameStatus);
 
         yield return new WaitForSeconds(TIME_UNTIL_LEVEL_LOAD);
-        Application.LoadLevel("Menu");
+        SceneManager.LoadScene("Menu");
     }
     
 	private void HandleOnSwipe( GameInput.Direction direction )
