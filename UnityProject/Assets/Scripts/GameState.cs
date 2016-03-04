@@ -5,6 +5,9 @@ using System;
 //this class captures all information that should be saved and loaded with the game
 //it must inherit from mono behaviour to survive a level reload...
 public class GameState : MonoBehaviour {
+    //version refers to the version of the savegame
+    public const int VERSION = 1;
+
     private static string mGameName;
 
     private static List<Mission> mActiveMissions;
@@ -133,5 +136,63 @@ public class GameState : MonoBehaviour {
         b.attach(Addon.AttachPosition.Bottom, fd);
 
         return b;
+    }
+
+    private static string createGameString()
+    {
+        string s = "";
+
+        //basic game details
+        s += VERSION + ";";
+        s += CurrentPlanet.Name + ";";
+
+        //player details
+        s += ShipName + ";";
+        s += PlayerMoney + ";";
+        s += PlayerReputaion + ";";
+        s += PlayerFuel + ";";
+        s += PlayerMaxFuel + ";";
+        s += PlayerMaxCargo + ";";
+        s += createCargoString(PlayerCargo);
+        s += createAddonString(PlayerAddons);
+
+        //missions
+        s += mActiveMissions.Count + ";";
+        foreach(Mission m in mActiveMissions)
+        {
+            s += m.ToString() + ";"
+        }
+
+        return s;
+    }
+
+    private static string createCargoString(CargoDef c)
+    {
+        string s = "";
+        Dictionary<CargoDef.CargoType, int> def = c.GetCargo();
+
+        foreach(CargoDef.CargoType t in def.Keys)
+        {
+            s += (int)t + ":";
+            s += def[t] + ",";
+        }
+        
+        return s + ";";
+    }
+
+    private static string createAddonString(Addon b)
+    {
+        if (b is Base)
+        {
+            return "Base(" + createAddonString(b.getAttachment(Addon.AttachPosition.Bottom)) + ");";
+        }
+        else if(b is Empty)
+        {
+            return "Empty,";
+        }
+        else
+        {
+            return b.getName() + "(" + createAddonString(b.getAttachment(Addon.AttachPosition.Left)) + ":" + createAddonString(b.getAttachment(Addon.AttachPosition.Right)) + ":" + createAddonString(b.getAttachment(Addon.AttachPosition.Bottom)) + "),";
+        }
     }
 }

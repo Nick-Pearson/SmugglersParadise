@@ -3,10 +3,10 @@ using System;
 
 public abstract class Mission {
 
-    private Planet mTargetPlanet;
     private int mCount = 0;
     private int mTarget = 1;
 
+    public Planet TargetPlanet { get; private set; }
     public string Name { get; private set; }
     public string Description { get; private set; }
     public int ReputationValue { get; private set; }
@@ -18,14 +18,14 @@ public abstract class Mission {
         Description = description;
         ReputationValue = reputationValue;
         Reward = reward;
-        mTargetPlanet = targetPlanet;
+        TargetPlanet = targetPlanet;
         mTarget = reqCount;
     }
 
     //are we in the right state to complete this mission
     public virtual bool isMissionCompletable()
     {
-        if (GameState.CurrentPlanet != mTargetPlanet || mCount < mTarget)
+        if (GameState.CurrentPlanet != TargetPlanet || mCount < mTarget)
             return false;
 
         return true;
@@ -40,6 +40,28 @@ public abstract class Mission {
     public abstract void TakeMission();
 
     public abstract void Complete();
+
+    public override string ToString()
+    {
+        string s = "";
+        s += Name + ",";
+        s += Description + ",";
+        s += ReputationValue + ",";
+        s += Reward + ",";
+        s += TargetPlanet.Name + ",";
+        s += mTarget;
+        return s;
+    }
+
+    public static Mission ParseMission(string s)
+    {
+        string[] parts = s.Split(',');
+
+        if (parts[0] == "1")
+            return CargoMission.ParseMission(s);
+
+        return null;
+    }
 }
 
 //cargo missions
@@ -69,5 +91,35 @@ public class CargoMission : Mission
     {
         GameState.PlayerCargo.Remove(cType, cAmount);
         UIManager.UISystem.ChangeCargoValue(GameState.PlayerCargoPercentage);
+    }
+
+    public override string ToString()
+    {
+        string s = "1,";
+        s += (int)cType + ":" + cAmount + ",";
+        s += base.ToString();
+        return s;
+    }
+
+    public static new Mission ParseMission(string s)
+    {
+        string[] parts = s.Split(',');
+
+        if (parts[0] != "1")
+            throw new Exception("Invalid mission type for parse");
+
+        //parse out our cargo target
+        string[] cargoParts = parts[1].Split(':');
+        CargoDef.CargoType cType = (CargoDef.CargoType)int.Parse(cargoParts[0]);
+        int cAmount = int.Parse(cargoParts[1]);
+
+        string name = parts[2];
+        string description = parts[3];
+        int reputation = int.Parse(parts[4]);
+        int reward = int.Parse(parts[5]);
+        Planet target = World.getPlanetFromName(parts[6]);
+        //ignore count as it is not required here
+
+        return new CargoMission(name, description, target, cType, cAmount, reward, reputation);
     }
 }
