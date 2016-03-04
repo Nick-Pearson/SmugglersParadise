@@ -2,6 +2,7 @@
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class MenuSystem : MonoBehaviour {
     //Object References to UI Elements
@@ -227,6 +228,7 @@ public class MenuSystem : MonoBehaviour {
     {
         UIelement.FindChild("Mission_Title").GetComponent<Text>().text = m.Name;
         UIelement.FindChild("Mission_Text").GetComponent<Text>().text = m.Description;
+        UIelement.FindChild("Mission_Value").GetComponent<Text>().text = "cr. " + m.Reward;
         UIelement.FindChild("Take_Mission").gameObject.SetActive(false);
         UIelement.FindChild("Mission_Text").gameObject.SetActive(false);
     }
@@ -308,6 +310,9 @@ public class MenuSystem : MonoBehaviour {
     void OnCompletedMissionClicked(int missionID)
     {
         GameState.CompleteMission(missionID);
+
+        ChangeMoney(0);
+        mCompletedMissionUIObjects[missionID].gameObject.SetActive(false);
     }
 
     void OnAddonSelected(RectTransform uiElm, Addon addon, Addon.AttachPosition pos)
@@ -492,7 +497,7 @@ public class MenuSystem : MonoBehaviour {
 
     public void OnClickedTakeoff()
     {
-        Application.LoadLevel("Game");
+        SceneManager.LoadScene("Game");
     }
 
     public void OnClickedRefuel()

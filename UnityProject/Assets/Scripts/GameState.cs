@@ -90,6 +90,8 @@ public class GameState : MonoBehaviour {
         PlayerMoney += m.Reward;
         PlayerReputaion += m.ReputationValue;
 
+        mCompleteableMissions[index].Complete();
+        
         //for now we keep that mission in the list of completeables
         //otherwise the indexing will be skewed
         mActiveMissions.Remove(m);

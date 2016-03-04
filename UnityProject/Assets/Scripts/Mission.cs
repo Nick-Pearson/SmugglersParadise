@@ -38,6 +38,8 @@ public abstract class Mission {
     }
 
     public abstract void TakeMission();
+
+    public abstract void Complete();
 }
 
 //cargo missions
@@ -60,6 +62,12 @@ public class CargoMission : Mission
     public override void TakeMission()
     {
         GameState.PlayerCargo.Add(cType, cAmount);
+        UIManager.UISystem.ChangeCargoValue(GameState.PlayerCargoPercentage);
+    }
+
+    public override void Complete()
+    {
+        GameState.PlayerCargo.Remove(cType, cAmount);
         UIManager.UISystem.ChangeCargoValue(GameState.PlayerCargoPercentage);
     }
 }
