@@ -15,6 +15,7 @@ public class GameState : MonoBehaviour {
 
     //publically accessable properties
     public static Planet CurrentPlanet;
+    public static Planet Destination;
     public static string ShipName;
     public static float PlayerFuelPercentage { get { return PlayerMaxFuel == 0 ? 0 : PlayerFuel / PlayerMaxFuel; } }
     public static float RefuelCost { get { return Mathf.Round((PlayerMaxFuel - PlayerFuel) * FUEL_COST); } }
@@ -105,6 +106,7 @@ public class GameState : MonoBehaviour {
     {
         mActiveMissions = new List<Mission>();
         CurrentPlanet = World.Egoras;
+        Destination = World.Hellzine;
 
         ShipName = "The Jolly Hamburger";
         PlayerFuel = 800;
@@ -160,7 +162,7 @@ public class GameState : MonoBehaviour {
         s += mActiveMissions.Count + ";";
         foreach(Mission m in mActiveMissions)
         {
-            s += m.ToString() + ";"
+            s += m.ToString() + ";";
         }
 
         return s;

@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 public class PlanetFactory : MonoBehaviour {
     [SerializeField] private GameObject PlanetPrefab;
@@ -22,11 +21,11 @@ public class PlanetFactory : MonoBehaviour {
         p0.name = "Origin";
         GameObject p1 = Instantiate(PlanetPrefab);
         p1.name = "Destination";
-        p1.transform.Translate(0, GameLogic.TargetDistance + GameLogic.Destination.AtmosphereSize, 0);
+        p1.transform.Translate(0, GameLogic.TargetDistance + GameState.Destination.AtmosphereSize, 0);
         p1.transform.localScale = new Vector3(1,-1,1);
 
-        SetupPlanet(p0, GameLogic.Origin);
-        SetupPlanet(p1, GameLogic.Destination);
+        SetupPlanet(p0, GameState.CurrentPlanet);
+        SetupPlanet(p1, GameState.Destination);
 
         mCloudObjects = new GameObject[CloudPoolSize];
 

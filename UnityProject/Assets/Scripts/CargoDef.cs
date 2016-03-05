@@ -2,23 +2,24 @@
 
 public class CargoDef {
     //enum is order of value Low to High
-    public enum CargoType
+     public enum CargoType
     {
-        Livestock,
-        Oil,
         Rubbish,
-        Aid,
+        Livestock,
+        Pirate_Flags,
+        Oil,
         Coffee,
         Gold,
+        Wooden_Legs,
         Lemonade,
-        Pirate_Flags,
-        Booty,
-        Cannon
+        Rum,
+        Peices_Of_Eight,
+        Count
     }
 
     private Dictionary<CargoType, int> mCargoDef = new Dictionary<CargoType, int>();
 
-    //do we have this cargo?s
+    //do we have this cargo?
     public bool Contains(CargoType cargo)
     {
         return mCargoDef.ContainsKey(cargo);

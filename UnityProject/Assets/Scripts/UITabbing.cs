@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UITabbing : MonoBehaviour {
@@ -18,6 +19,12 @@ public class UITabbing : MonoBehaviour {
     {
         if (id > Tabs.Length)
             throw new System.Exception("That tab does not exist");
+
+        //special case for the takeoff tab
+        if(id == 3 && mActiveTab == 3)
+        {
+            SceneManager.LoadScene("Game");
+        }
 
         Tabs[mActiveTab].panel.SetActive(false);
         Tabs[mActiveTab].ui.color = DisabledColor;

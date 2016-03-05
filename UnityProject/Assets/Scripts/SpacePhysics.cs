@@ -2,6 +2,8 @@
 
 public class SpacePhysics : MonoBehaviour {
     [SerializeField] private bool ApplyGravity = true;
+    [SerializeField] private bool RecievesDamage = false;
+
     public float Mass = 1;
     public float Thrust = 0;
 
@@ -79,5 +81,11 @@ public class SpacePhysics : MonoBehaviour {
             mVelocity = 0; //velocity is the exact distance to ground
             mVirtualHeight = 0;
         }
+    }
+
+    //sign up for collision events
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        Debug.Log("Hit " + collision.transform.name);
     }
 }

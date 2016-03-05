@@ -10,6 +10,7 @@ public class MenuSystem : MonoBehaviour {
     [SerializeField] private RectTransform CompleteListContainer;
     [SerializeField] private RectTransform AddonListContainer;
     [SerializeField] private RectTransform ShopListContainer;
+    [SerializeField] private RectTransform ActiveMissionContainer;
 
     [SerializeField] private RectTransform MissionUIPrefab;
     [SerializeField] private RectTransform MissionCompleteUIPrefab;
@@ -27,6 +28,8 @@ public class MenuSystem : MonoBehaviour {
     [SerializeField] private Button DownAddonButton;
     [SerializeField] private Button LeftAddonButton;
     [SerializeField] private Button RightAddonButton;
+
+    [SerializeField] private Dropdown PlanetSelectDropdown;
 
     [SerializeField] private Color NormalColor;
     [SerializeField] private Color SelectedColor;
@@ -55,6 +58,7 @@ public class MenuSystem : MonoBehaviour {
         mAvailibleMissions = GetRandomMissions(Random.Range(5,25));
         mMissionUIObjects = GenerateMissionList(mAvailibleMissions, MissionListContainer);
         mCompletedMissionUIObjects = GenerateMissionList(GameState.GetCompleteableMissions(), CompleteListContainer);
+        GenerateMissionList(GameState.GetActiveMissions(), ActiveMissionContainer);
 
         //hook events for availible missions
         for(int i = 0; i < mMissionUIObjects.Length; i++)
@@ -98,10 +102,24 @@ public class MenuSystem : MonoBehaviour {
         UIManager.UISystem.ChangeCargoValue(GameState.PlayerCargoPercentage);
         UIManager.UISystem.ChangeFuelValue(GameState.PlayerFuelPercentage);
 
+        //populate the normal data fields
         PlanetWelcomeText.text = "Welcome to " + GameState.CurrentPlanet.Name;
         FuelText.text = "Re-Fuel (cr. " + GameState.RefuelCost + ")";
         ShipNameText.text = GameState.ShipName;
         MoneyText.text = "cr. " + GameState.PlayerMoney;
+
+        //populate the dropdown menu with the planets we can fly to
+        List<Dropdown.OptionData> options = new List<Dropdown.OptionData>();
+        Planet[] planets = World.getAllPlanets();
+
+        GameState.Destination = planets[0];
+
+        foreach(Planet p in planets)
+        {
+            if (p != GameState.CurrentPlanet)
+                options.Add(new Dropdown.OptionData(p.Name + " (" + (int)World.getDistance(GameState.CurrentPlanet, p) + "km)"));
+        }
+        PlanetSelectDropdown.AddOptions(options);
     }
 
     //creates the list of addons for the store
@@ -494,11 +512,6 @@ public class MenuSystem : MonoBehaviour {
         RebuildShipUI();
     }
 
-    public void OnClickedTakeoff()
-    {
-        SceneManager.LoadScene("Game");
-    }
-
     public void OnClickedRefuel()
     {
         ChangeMoney(-(int)GameState.RefuelCost);
@@ -510,6 +523,11 @@ public class MenuSystem : MonoBehaviour {
     public void OnClickedMainMenu()
     {
         SceneManager.LoadScene("MainMenu");
+    }
+
+    public void OnChangedPlanetOption(int option)
+    {
+        GameState.Destination = World.getPlanetFromName(PlanetSelectDropdown.options[option].text.Split('(')[0].TrimEnd());
     }
 
     void ChangeMoney(int amount)
@@ -549,10 +567,11 @@ public class MenuSystem : MonoBehaviour {
             if (Random.value >= 0f)
             {
                 int cargoAmount = Random.Range(50, 500);
-                CargoDef.CargoType cargo = (CargoDef.CargoType)Random.Range(0, 9);
+                CargoDef.CargoType cargo = (CargoDef.CargoType)Random.Range(0, (int)CargoDef.CargoType.Count);
+                string cargoName = cargo.ToString().Replace('_', ' ');
                 Planet target = World.getRandomPlanet(GameState.CurrentPlanet);
 
-                missions[i] = new CargoMission(cargo + " to " + target.Name, "Transport " + cargoAmount + "tons of " + cargo.ToString() + " to " + target.Name, target, cargo, amount, amount * Random.Range((int)cargo + 1, ((int)cargo + 1) * 10));
+                missions[i] = new CargoMission(cargoName + " to " + target.Name, "Transport " + cargoAmount + "tons of " + cargoName + " to " + target.Name, target, cargo, amount, amount * Random.Range((int)cargo + 1, ((int)cargo + 1) * 10));
             }
             else
             {

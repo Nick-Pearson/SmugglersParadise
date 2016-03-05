@@ -26,8 +26,6 @@ public class GameLogic : MonoBehaviour
     public static float ScreenBottom { get { return Camera.main.transform.position.y - mScreenHeight; } }
     public static float ColumnSize { get { return ScreenBounds * 1.6f / (int)GameState.Column.NumColumns; } }
     public static bool Paused { get; private set; }
-    public static Planet Origin;
-    public static Planet Destination;
     public static float TargetDistance { get; private set; }
 
     //keep track of the camera offset
@@ -52,19 +50,15 @@ public class GameLogic : MonoBehaviour
 		mPlayerCharacter = GetComponentInChildren<PlayerCharacter>();
 		mGameStatus = State.TapToStart;
 		Paused = false;
-        
-        //TODO: Fix aribtrary starting values
-        Origin = World.Egoras;
-        Destination = World.Hellzine;
 
-        TargetDistance = World.getDistance(Origin, Destination);
+        TargetDistance = World.getDistance(GameState.CurrentPlanet, GameState.Destination);
 
         //setup spawning parameters
         mLastSpawnDistance = new float[(int)GameState.Column.NumColumns];
 
         //ensure nothing is spawned until we are out of the atmosphere
         for (int i = 0; i < mLastSpawnDistance.Length; i++)
-            mLastSpawnDistance[i] = Origin.AtmosphereSize;
+            mLastSpawnDistance[i] = GameState.CurrentPlanet.AtmosphereSize;
         
 
         StartCoroutine(StartSequence());
@@ -143,7 +137,7 @@ public class GameLogic : MonoBehaviour
 
     private IEnumerator FadeOut(float fadeoutTime, int iterations = 100)
     {
-        UIManager.UISystem.ChangeEndText(Destination.Name);
+        UIManager.UISystem.ChangeEndText(GameState.Destination.Name);
         
         for(int i = 0; i < iterations; i++)
         {
@@ -155,7 +149,7 @@ public class GameLogic : MonoBehaviour
         Paused = true;
         mGameStatus = State.EndGame;
 
-        GameState.CurrentPlanet = Destination;
+        GameState.CurrentPlanet = GameState.Destination;
 
         OnStateChange(mGameStatus);
 

@@ -24,6 +24,9 @@ public class ShipGraphics : MonoBehaviour {
 
         //find all our engine effects
         mEngineEffects = GameObject.FindGameObjectsWithTag("Effect");
+
+        //update our collider
+        GetComponent<BoxCollider2D>().size = new Vector2(1,height-1.5f);
     }
 
     float BuildAddonGraphics(float offsetX, float offsetY, Addon a, GameObject parent)
