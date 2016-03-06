@@ -58,7 +58,6 @@ public class MenuSystem : MonoBehaviour {
         mAvailibleMissions = GetRandomMissions(Random.Range(5,25));
         mMissionUIObjects = GenerateMissionList(mAvailibleMissions, MissionListContainer);
         mCompletedMissionUIObjects = GenerateMissionList(GameState.GetCompleteableMissions(), CompleteListContainer);
-        GenerateMissionList(GameState.GetActiveMissions(), ActiveMissionContainer);
 
         //hook events for availible missions
         for(int i = 0; i < mMissionUIObjects.Length; i++)
@@ -148,6 +147,8 @@ public class MenuSystem : MonoBehaviour {
             uiElements[i] = addonUI;
         }
 
+        //set the conatiner size
+        container.offsetMax = new Vector2(container.offsetMax.x, uiElements.Length * (uiElements[0].rect.height + UI_PADDING));
         return uiElements;
     }
 
@@ -269,9 +270,17 @@ public class MenuSystem : MonoBehaviour {
 
     void OnMissionClicked(int missionID)
     {
-        if(mCurrentSelectedMission == -1)
+        ToggleMissionMode(mMissionUIObjects[missionID]);
+
+        //check we meet mission requirements
+        if (!mAvailibleMissions[missionID].isMissionTakeable())
+            mMissionUIObjects[missionID].GetComponentInChildren<Button>().interactable = false;
+        else
+            mMissionUIObjects[missionID].GetComponentInChildren<Button>().interactable = true;
+
+        //modify the ui to show selection
+        if (mCurrentSelectedMission == -1)
         {
-            ToggleMissionMode(mMissionUIObjects[missionID]);
             //offset the ui elements bellow us
             for (int i = missionID+1; i < mMissionUIObjects.Length; i++)
             {
@@ -299,9 +308,6 @@ public class MenuSystem : MonoBehaviour {
                     mMissionUIObjects[i].anchoredPosition3D = new Vector3(mMissionUIObjects[i].anchoredPosition3D.x, mMissionUIObjects[i].anchoredPosition3D.y - MISSION_SIZE_GROW, mMissionUIObjects[i].anchoredPosition3D.z);
                 }
             }
-
-            //activate us
-            ToggleMissionMode(mMissionUIObjects[missionID]);
         }
 
         mCurrentSelectedMission = missionID;
@@ -454,7 +460,17 @@ public class MenuSystem : MonoBehaviour {
         mAddonUIElements[index].GetComponent<Button>().colors = buildColorBlock(SelectedColor);
 
         BuyAddonButton.GetComponentInChildren<Text>().text = "Buy (cr. " + mAvailibleAddons[index].getPrice() + ")";
-        BuyAddonButton.interactable = true;
+
+        if (GameState.PlayerMoney >= mAvailibleAddons[index].getPrice())
+            BuyAddonButton.interactable = true;
+        else
+            BuyAddonButton.interactable = false;
+    }
+
+    public void OnClickedTakeoff()
+    {
+        DropChildren(ActiveMissionContainer);
+        GenerateMissionList(GameState.GetActiveMissions(), ActiveMissionContainer);
     }
 
     public void OnClickedBuyButton()
@@ -517,7 +533,7 @@ public class MenuSystem : MonoBehaviour {
         ChangeMoney(-(int)GameState.RefuelCost);
         GameState.PlayerFuel = GameState.PlayerMaxFuel;
         UIManager.UISystem.ChangeFuelValue(1);
-        FuelText.text = "Refuel (cr. 0)";
+        FuelText.text = "Re-Fuel (cr. 0)";
     }
 
     public void OnClickedMainMenu()

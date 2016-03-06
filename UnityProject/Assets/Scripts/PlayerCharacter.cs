@@ -16,8 +16,6 @@ public class PlayerCharacter : MonoBehaviour
     private GameState.Column mColumn = GameState.Column.Two;
     private float mColumnTime = 0; //timer for smooth movement
 
-    private float mGameStartTime;
-
     //Rotation variables
     private Quaternion mStartRotation;
     private Quaternion mTargetRotation;
@@ -140,11 +138,7 @@ public class PlayerCharacter : MonoBehaviour
 
     private void OnGameStateChange(GameLogic.State s)
     {
-        if (s == GameLogic.State.Game)
-        {
-            mGameStartTime = Time.time;
-        }
-        else if(s == GameLogic.State.EndGame)
+        if(s == GameLogic.State.EndGame)
         {
             //update the game state with our fuel
             GameState.PlayerFuel = PlayerFuelAmount;

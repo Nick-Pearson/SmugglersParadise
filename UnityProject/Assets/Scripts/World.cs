@@ -10,25 +10,14 @@ public class World {
     //find a specific planet (perhaps to use when loading from savegame??)
     public static Planet getPlanetFromName(string name)
     {
-        switch(name)
+        Planet[] planets = getAllPlanets();
+
+        foreach(Planet p in planets)
         {
-            case "Any":
-                return Any;
-            case "Space":
-                return Space;
-            case "Egoras":
-                return Egoras;
-            case "Hellzine":
-                return Hellzine;
-            case "Treasure Island":
-                return TreasureIsland;
-            case "Moocombe":
-                return Moocombe;
-            case "Limpet":
-                return Limpet;
-            default:
-                throw new System.Exception("Referenced planet (" + name + ") could not be found");
+            if (p.Name == name)
+                return p;
         }
+        throw new System.Exception("Referenced planet (" + name + ") could not be found");
     }
 
     //get a random planet
@@ -53,19 +42,14 @@ public class World {
 
     public static Planet[] getAllPlanets()
     {
-        return new Planet[5] { Egoras, Hellzine, TreasureIsland, Moocombe, Limpet };
+        return new Planet[6] { Egoras, Hellzine, TreasureIsland, Moocombe, Limpet, Rubnub };
     }
-
-    //an 'any' planet wildcard object for use in missions
-    public static Planet Any = new Planet("Any", new Vector2(0, 0));
-
-    //special case 'planet' where we are in space
-    public static Planet Space = new Planet("Space", new Vector2(0, 0));
 
     //defined planets in our world
     public static Planet Egoras = new Planet("Egoras", new Vector2(0, 0), 100, 1);
-    public static Planet Hellzine = new Planet("Hellzine", new Vector2(500, 0), 200, 1);
-    public static Planet TreasureIsland = new Planet("Treasure Island", new Vector2(10000, 0), 150, 1.3f);
+    public static Planet Hellzine = new Planet("Hellzine", new Vector2(500, 1550), 200, 1);
+    public static Planet TreasureIsland = new Planet("Treasure Island", new Vector2(10000, -440), 150, 1.3f);
     public static Planet Moocombe = new Planet("Moocombe", new Vector2(1500, 1500), 100, 0.4f);
     public static Planet Limpet = new Planet("Limpet", new Vector2(-15000, 0), 400, 1.1f);
+    public static Planet Rubnub = new Planet("Rubnub", new Vector2(-10000, 750), 100, 0.8f);
 }

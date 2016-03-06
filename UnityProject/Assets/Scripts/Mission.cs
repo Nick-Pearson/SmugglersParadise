@@ -62,6 +62,8 @@ public abstract class Mission {
 
         return null;
     }
+
+    public virtual bool isMissionTakeable() { return true; }
 }
 
 //cargo missions
@@ -121,5 +123,13 @@ public class CargoMission : Mission
         //ignore count as it is not required here
 
         return new CargoMission(name, description, target, cType, cAmount, reward, reputation);
+    }
+
+    public override bool isMissionTakeable()
+    {
+        if (GameState.PlayerMaxCargo - GameState.PlayerCargo.GetAmount() >= cAmount)
+            return true;
+
+        return false;
     }
 }
