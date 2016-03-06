@@ -61,7 +61,7 @@ public class PlayerCharacter : MonoBehaviour
     [HideInInspector] public float PlayerMaxFuel = 0; //max capacity of fuel tanks in tons
     [HideInInspector] public float PlayerMaxFuelBurn = 0; //tons of fuel burnt per second at 100% power
     [HideInInspector] public float ShipMaxCargo = 0; //max capacity of the cargo hold
-    [HideInInspector] public float ShipHandling = 100; //time it takes the ship to move across a column
+    [HideInInspector] public float ShipHandling = 75; //time it takes the ship to move across a column
 
     //CARGO Properties                  (i.e. Properties exposed to be modified by cargo)
     public float ShipCargoMass { get; set; }

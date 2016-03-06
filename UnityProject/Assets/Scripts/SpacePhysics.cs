@@ -86,6 +86,11 @@ public class SpacePhysics : MonoBehaviour {
     //sign up for collision events
     void OnTriggerEnter2D(Collider2D collision)
     {
-        Debug.Log("Hit " + collision.transform.name);
+        //did we collide with something that should cause us damage
+        if (collision.tag == "Enemy")
+        {
+            mVelocity -= ((Velocity - collision.GetComponent<SpacePhysics>().Velocity) * collision.GetComponent<SpacePhysics>().Mass) / Mass;
+            ObsticalFactory.Return(collision.gameObject);
+        }
     }
 }
