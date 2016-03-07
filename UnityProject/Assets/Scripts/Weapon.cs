@@ -33,6 +33,9 @@ public class Weapon : MonoBehaviour
             mPool[count] = bullet;
 			mInactive.Add( bullet );
 			bullet.SetActive( false );
+
+            bullet.AddComponent<BoxCollider2D>();
+            bullet.tag = "Bullet";
 		}
 		mCharging = 0.0f;
 	}
@@ -44,9 +47,9 @@ public class Weapon : MonoBehaviour
 		for( int count = 0; count < mActive.Count; count++ )
 		{
 			Vector3 position = mActive[count].transform.position;
-			position.y += GameLogic.GameDeltaTime; //TODO: Add speed parameter
+			position.y += GameLogic.GameDeltaTime * GameState.BULLET_SPEED;
 			mActive[count].transform.position = position;
-			if( position.y > GameLogic.ScreenTop * 0.5f )
+			if( position.y > GameLogic.ScreenTop )
 			{
 				mActive[count].SetActive( false );
 				oldBullets.Add( mActive[count] ); 
@@ -77,7 +80,13 @@ public class Weapon : MonoBehaviour
             bullet.transform.parent = null;
             bullet.transform.position = position;
 			bullet.SetActive( true );
-			mActive.Add( bullet );
+            
+            bullet.GetComponent<BoxCollider2D>().enabled = true;
+
+            if(bullet.GetComponent<MeshRenderer>() != null) //the bullet may not have a mesh renderer yet
+                bullet.GetComponent<MeshRenderer>().enabled = true;
+
+            mActive.Add( bullet );
 			mInactive.Remove( bullet );
 			mCharging = RechargeTime;
 			result = true;

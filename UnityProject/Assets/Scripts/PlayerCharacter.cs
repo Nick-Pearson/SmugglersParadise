@@ -140,8 +140,9 @@ public class PlayerCharacter : MonoBehaviour
     {
         if(s == GameLogic.State.EndGame)
         {
-            //update the game state with our fuel
+            //update the game state with our fuel and damage
             GameState.PlayerFuel = PlayerFuelAmount;
+            GameState.PlayerDamage = GetComponent<DamageReciever>().CurrentHealth / GetComponent<DamageReciever>().MaxHealth;
         }
     }
 
@@ -190,7 +191,6 @@ public class PlayerCharacter : MonoBehaviour
 
     public void UpdateThrottle(float val)
     {
-        Debug.Log("Set throttle " + val);
         PlayerThrustPercentage = val;
     }
 }

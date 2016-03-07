@@ -81,7 +81,6 @@ public class GameInput : MonoBehaviour
             //if this is not a tap call the hold porcedure
             if (duration >= TapDuration && !mIsCurrentlyHolding)
             {
-                Debug.Log("Hold!");
                 OnHold(true);
                 mIsCurrentlyHolding = true;
             }

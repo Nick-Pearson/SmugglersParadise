@@ -89,8 +89,20 @@ public class SpacePhysics : MonoBehaviour {
         //did we collide with something that should cause us damage
         if (collision.tag == "Enemy")
         {
+            if (RecievesDamage)
+                SendMessage("ApplyDamage", collision.GetComponent<SpacePhysics>().Mass / 100);
+
             mVelocity -= ((Velocity - collision.GetComponent<SpacePhysics>().Velocity) * collision.GetComponent<SpacePhysics>().Mass) / Mass;
             ObsticalFactory.Return(collision.gameObject);
+        } else if(collision.tag == "Bullet" && gameObject.tag == "Enemy") {
+            //hide the bullet (we don't destory it)
+            collision.GetComponent<MeshRenderer>().enabled = false;
+            collision.GetComponent<BoxCollider2D>().enabled = false;
+
+
+            if (RecievesDamage)
+                SendMessage("ApplyDamage", GameState.BULLET_DAMAGE);
         }
+
     }
 }

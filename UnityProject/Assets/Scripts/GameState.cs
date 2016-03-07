@@ -26,12 +26,15 @@ public class GameState : MonoBehaviour {
     public static CargoDef PlayerCargo;
     public static float PlayerMaxCargo;
     public static Addon PlayerAddons;
+    public static float PlayerDamage;
 
     public static int PlayerMoney;
     public static int PlayerReputaion { get; private set; }
 
     //game constants
     public const float FUEL_COST = 1.5f;
+    public const float BULLET_SPEED = 15.0f;
+    public const float BULLET_DAMAGE = 10;
 
     //if there is no data create a new game
     void Awake()
@@ -117,6 +120,7 @@ public class GameState : MonoBehaviour {
         PlayerCargo = new CargoDef();
         PlayerMaxCargo = 50;
         PlayerMoney = 1000;
+        PlayerDamage = 0.0f;
 
         PlayerAddons = buildBasicShip();
     }

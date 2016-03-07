@@ -67,9 +67,9 @@ public class GameLogic : MonoBehaviour
     private void HandleOnHold(bool release)
     {
         if (release)
-            mPlayerCharacter.UpdateThrottle(1.0f);
+            UIManager.UISystem.ChangeThrottleValue(20);
         else
-            mPlayerCharacter.UpdateThrottle(0);
+            UIManager.UISystem.ChangeThrottleValue(0);
     }
 
     IEnumerator StartSequence()
