@@ -21,6 +21,7 @@ public class MenuSystem : MonoBehaviour {
     [SerializeField] private Text MoneyText;
     [SerializeField] private Text DamageText;
     [SerializeField] private Text FuelText;
+    [SerializeField] private Text RepairText;
 
     [SerializeField] private Button SellAddonButton;
     [SerializeField] private Button BuyAddonButton;
@@ -100,10 +101,12 @@ public class MenuSystem : MonoBehaviour {
     {
         UIManager.UISystem.ChangeCargoValue(GameState.PlayerCargoPercentage);
         UIManager.UISystem.ChangeFuelValue(GameState.PlayerFuelPercentage);
+        UIManager.UISystem.ChangeDamageValue(GameState.PlayerDamage);
 
         //populate the normal data fields
         PlanetWelcomeText.text = "Welcome to " + GameState.CurrentPlanet.Name;
         FuelText.text = "Re-Fuel (cr. " + GameState.RefuelCost + ")";
+        RepairText.text = "Repair (cr. " + GameState.RepairCost + ")";
         ShipNameText.text = GameState.ShipName;
         MoneyText.text = "cr. " + GameState.PlayerMoney;
 
@@ -534,6 +537,14 @@ public class MenuSystem : MonoBehaviour {
         GameState.PlayerFuel = GameState.PlayerMaxFuel;
         UIManager.UISystem.ChangeFuelValue(1);
         FuelText.text = "Re-Fuel (cr. 0)";
+    }
+
+    public void OnClickedRepair()
+    {
+        ChangeMoney(-(int)GameState.RepairCost);
+        GameState.PlayerDamage = 0.0f;
+        UIManager.UISystem.ChangeDamageValue(0.0f);
+        RepairText.text = "Repair (cr. 0)";
     }
 
     public void OnClickedMainMenu()

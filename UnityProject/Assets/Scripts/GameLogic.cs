@@ -9,9 +9,6 @@ public class GameLogic : MonoBehaviour
     [SerializeField] private Image Fadeout;
 
     public enum State { TapToStart, Game, GameOver, Won, EndGame };
-
-    public delegate void OnGameStateChange(State s);
-    public static event OnGameStateChange OnStateChange;
     
     private PlayerCharacter mPlayerCharacter;
     private float mDistanceTravelled;
@@ -83,7 +80,6 @@ public class GameLogic : MonoBehaviour
         UIManager.UISystem.ChangeStartText("");
         Paused = false;
         mGameStatus = State.Game;
-        OnStateChange(mGameStatus);
     }
 
     void FixedUpdate()
@@ -116,8 +112,9 @@ public class GameLogic : MonoBehaviour
             if(mDistanceTravelled > TargetDistance)
             {
                 mGameStatus = State.Won;
+                GameState.CurrentPlanet = GameState.Destination;
+                UIManager.UISystem.ChangeEndText(GameState.Destination.Name);
                 StartCoroutine(FadeOut(0.5f, 30));
-                OnStateChange(mGameStatus);
             }
                 
 		}
@@ -143,10 +140,14 @@ public class GameLogic : MonoBehaviour
         }
 	}
 
-    private IEnumerator FadeOut(float fadeoutTime, int iterations = 100)
+    public void GameOver()
     {
-        UIManager.UISystem.ChangeEndText(GameState.Destination.Name);
-        
+        UIManager.UISystem.ChangeEndText("Game Over");
+        StartCoroutine(FadeOut(0.5f, 30));
+    }
+
+    private IEnumerator FadeOut(float fadeoutTime, int iterations = 100)
+    {    
         for(int i = 0; i < iterations; i++)
         {
             Fadeout.color = new Color(0, 0, 0, (float)(i+1) / iterations);
@@ -157,9 +158,10 @@ public class GameLogic : MonoBehaviour
         Paused = true;
         mGameStatus = State.EndGame;
 
-        GameState.CurrentPlanet = GameState.Destination;
-
-        OnStateChange(mGameStatus);
+        //store the players values
+        //update the game state with our fuel and damage
+        GameState.PlayerFuel = mPlayerCharacter.PlayerFuelAmount;
+        GameState.PlayerDamage = 1 - ((float)mPlayerCharacter.GetComponent<DamageReciever>().CurrentHealth / mPlayerCharacter.GetComponent<DamageReciever>().MaxHealth);
 
         yield return new WaitForSeconds(TIME_UNTIL_LEVEL_LOAD);
         SceneManager.LoadScene("Menu");

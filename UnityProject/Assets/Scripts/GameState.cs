@@ -19,6 +19,7 @@ public class GameState : MonoBehaviour {
     public static string ShipName;
     public static float PlayerFuelPercentage { get { return PlayerMaxFuel == 0 ? 0 : PlayerFuel / PlayerMaxFuel; } }
     public static float RefuelCost { get { return Mathf.Round((PlayerMaxFuel - PlayerFuel) * FUEL_COST); } }
+    public static float RepairCost { get { return Mathf.Round(PlayerDamage * REPAIR_COST); } }
     public static float PlayerCargoPercentage { get { return PlayerMaxCargo == 0 ? 0 : PlayerCargo.GetAmount() / PlayerMaxCargo; } }
 
     public static float PlayerFuel;
@@ -33,6 +34,7 @@ public class GameState : MonoBehaviour {
 
     //game constants
     public const float FUEL_COST = 1.5f;
+    public const float REPAIR_COST = 500;
     public const float BULLET_SPEED = 15.0f;
     public const float BULLET_DAMAGE = 10;
 

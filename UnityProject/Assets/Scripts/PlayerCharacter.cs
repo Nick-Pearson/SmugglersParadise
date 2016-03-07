@@ -91,9 +91,6 @@ public class PlayerCharacter : MonoBehaviour
         ShipCargoMass = GameState.PlayerCargo.GetAmount();
         Physics.Mass = ShipAddonMass + PlayerFuelAmount;
 
-        //signup for game state changes
-        GameLogic.OnStateChange += OnGameStateChange;
-
         //set initial throttle to 0%
         UIManager.UISystem.ChangeThrottleValue(0);
     }
@@ -133,16 +130,6 @@ public class PlayerCharacter : MonoBehaviour
         else
         { //move back to normal
             transform.rotation = Quaternion.Slerp(mTargetRotation, mZeroRotation, (mColumnTime * 2) - 1);
-        }
-    }
-
-    private void OnGameStateChange(GameLogic.State s)
-    {
-        if(s == GameLogic.State.EndGame)
-        {
-            //update the game state with our fuel and damage
-            GameState.PlayerFuel = PlayerFuelAmount;
-            GameState.PlayerDamage = GetComponent<DamageReciever>().CurrentHealth / GetComponent<DamageReciever>().MaxHealth;
         }
     }
 

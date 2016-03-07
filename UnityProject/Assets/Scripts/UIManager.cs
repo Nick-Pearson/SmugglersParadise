@@ -24,8 +24,8 @@ public class UIManager : MonoBehaviour {
     [SerializeField] public OnTextChangedEvent CargoText;
     [SerializeField] public OnValueChangedEvent CargoValue;
 
-    [SerializeField] public OnTextChangedEvent PassengerText;
-    [SerializeField] public OnValueChangedEvent PassengerValue;
+    [SerializeField] public OnTextChangedEvent DamageText;
+    [SerializeField] public OnValueChangedEvent DamageValue;
 
     [SerializeField] public OnValueChangedEvent DistanceValue;
 
@@ -49,10 +49,10 @@ public class UIManager : MonoBehaviour {
         CargoText.Invoke(string.Format("{0}% Cargo", Mathf.FloorToInt(val * 100)));
     }
 
-    public void ChangePassengerValue(int val)
+    public void ChangeDamageValue(float val)
     {
-        PassengerValue.Invoke(val);
-        PassengerText.Invoke(string.Format("{0} Passengers", Mathf.FloorToInt(val * 100)));
+        DamageValue.Invoke(1 - val);
+        DamageText.Invoke(string.Format("{0}% Ship Health", Mathf.FloorToInt((1-val) * 100)));
     }
 
     public void ChangeThrottleValue(float val)
