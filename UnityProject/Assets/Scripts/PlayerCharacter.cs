@@ -190,6 +190,7 @@ public class PlayerCharacter : MonoBehaviour
 
     public void UpdateThrottle(float val)
     {
+        Debug.Log("Set throttle " + val);
         PlayerThrustPercentage = val;
     }
 }

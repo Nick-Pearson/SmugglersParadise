@@ -7,9 +7,11 @@ public class GameInput : MonoBehaviour
 	
 	public delegate void OnTapCallback( Vector3 position );
 	public delegate void OnSwipeCallback( Direction direction );
+    public delegate void OnHoldCallback(bool release);
 	
 	public static event OnTapCallback OnTap;
 	public static event OnSwipeCallback OnSwipe;
+    public static event OnHoldCallback OnHold;
 
 	private enum MouseButtons
 	{
@@ -28,6 +30,7 @@ public class GameInput : MonoBehaviour
 	private bool [] mMouseButtonLast;
 	private bool mIsPotentiallyTapping;
 	private bool mIsPotentiallySwiping;
+    private bool mIsCurrentlyHolding;
 
 	private const float TapMoveThreshold = 50.0f;
 	private const float TapDuration = 0.5f;
@@ -67,12 +70,21 @@ public class GameInput : MonoBehaviour
 			mStartTime = Time.time;
 			mIsPotentiallyTapping = true;
 			mIsPotentiallySwiping = false;
+            mIsCurrentlyHolding = false;
 		}
 		else if( MouseButtonHeld( MouseButtons.Left ) )
 		{
 			float duration = Time.time - mStartTime;
 			mIsPotentiallyTapping = mStartPosition == Input.mousePosition && duration <= TapDuration;
 			mIsPotentiallySwiping = mStartPosition != Input.mousePosition && duration <= SwipeDuration;
+
+            //if this is not a tap call the hold porcedure
+            if (duration >= TapDuration && !mIsCurrentlyHolding)
+            {
+                Debug.Log("Hold!");
+                OnHold(true);
+                mIsCurrentlyHolding = true;
+            }
 		}
 		else if( MouseButtonJustReleased( MouseButtons.Left ) )
 		{
@@ -113,7 +125,15 @@ public class GameInput : MonoBehaviour
 					}
 				}
 			}
-		}
+
+
+
+            if (mIsCurrentlyHolding)
+            {
+                OnHold(false);
+                mIsCurrentlyHolding = false;
+            }
+        }
 		else
 		{
 			mStartPosition = Vector3.zero;

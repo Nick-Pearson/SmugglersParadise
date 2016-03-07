@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
@@ -47,6 +46,7 @@ public class GameLogic : MonoBehaviour
 
         GameInput.OnTap += HandleOnTap;
 		GameInput.OnSwipe += HandleOnSwipe;
+        GameInput.OnHold += HandleOnHold;
 		mPlayerCharacter = GetComponentInChildren<PlayerCharacter>();
 		mGameStatus = State.TapToStart;
 		Paused = false;
@@ -63,6 +63,14 @@ public class GameLogic : MonoBehaviour
 
         StartCoroutine(StartSequence());
 	}
+
+    private void HandleOnHold(bool release)
+    {
+        if (release)
+            mPlayerCharacter.UpdateThrottle(1.0f);
+        else
+            mPlayerCharacter.UpdateThrottle(0);
+    }
 
     IEnumerator StartSequence()
     {
