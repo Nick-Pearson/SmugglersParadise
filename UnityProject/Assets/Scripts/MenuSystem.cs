@@ -89,7 +89,9 @@ public class MenuSystem : MonoBehaviour {
         }
 
         //TODO: Use this to resize container?
-        GenerateShipLayout(GameState.PlayerAddons, AddonListContainer);
+        int columnCount = GenerateShipLayout(GameState.PlayerAddons, AddonListContainer);
+        AddonListContainer.offsetMax = new Vector2(columnCount * (AddonPrefab.rect.width + UI_PADDING), AddonListContainer.offsetMax.y);
+
 
         mAvailibleAddons.AddRange(GetRandomAddons(Random.Range(3, 8)));
         mAddonUIElements.AddRange(GenerateAddonList(mAvailibleAddons.ToArray(), ShopListContainer));
@@ -114,7 +116,10 @@ public class MenuSystem : MonoBehaviour {
         List<Dropdown.OptionData> options = new List<Dropdown.OptionData>();
         Planet[] planets = World.getAllPlanets();
 
-        GameState.Destination = planets[0];
+        if (GameState.CurrentPlanet == World.Egoras)
+            GameState.Destination = planets[1];
+        else
+            GameState.Destination = planets[0];
 
         foreach(Planet p in planets)
         {
@@ -273,13 +278,15 @@ public class MenuSystem : MonoBehaviour {
 
     void OnMissionClicked(int missionID)
     {
-        ToggleMissionMode(mMissionUIObjects[missionID]);
-
-        //check we meet mission requirements
-        if (!mAvailibleMissions[missionID].isMissionTakeable())
-            mMissionUIObjects[missionID].GetComponentInChildren<Button>().interactable = false;
-        else
-            mMissionUIObjects[missionID].GetComponentInChildren<Button>().interactable = true;
+        if(missionID != mCurrentSelectedMission)
+        {
+            ToggleMissionMode(mMissionUIObjects[missionID]);
+            //check we meet mission requirements
+            if (!mAvailibleMissions[missionID].isMissionTakeable())
+                mMissionUIObjects[missionID].GetComponentInChildren<Button>().interactable = false;
+            else
+                mMissionUIObjects[missionID].GetComponentInChildren<Button>().interactable = true;
+        }
 
         //modify the ui to show selection
         if (mCurrentSelectedMission == -1)

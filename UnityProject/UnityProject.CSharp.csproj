@@ -88,6 +88,7 @@
     <Compile Include="Assets\Scripts\UIModulateColour.cs" />
     <Compile Include="Assets\Scripts\UISlider.cs" />
     <Compile Include="Assets\Scripts\UITabbing.cs" />
+    <Compile Include="Assets\Scripts\UITooltip.cs" />
     <Compile Include="Assets\Scripts\Weapon.cs" />
     <Compile Include="Assets\Scripts\World.cs" />
   </ItemGroup>

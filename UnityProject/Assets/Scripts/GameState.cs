@@ -104,9 +104,6 @@ public class GameState : MonoBehaviour {
         //for now we keep that mission in the list of completeables
         //otherwise the indexing will be skewed
         mActiveMissions.Remove(m);
-
-        //TODO: Remove
-        Debug.Log(PlayerReputaion);
     }
 
     //create a new profile

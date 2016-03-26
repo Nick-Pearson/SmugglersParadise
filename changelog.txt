@@ -1,0 +1,7 @@
+FIX
+====
+ - Planet Selection issue from Egoras
+ - Menu would continuously grow when clicked
+ - UI text rescaling
+ - Added tooltips to some buttons
+ - Updated UI for Cargo, Damage
