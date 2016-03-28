@@ -71,6 +71,7 @@ public class GameLogic : MonoBehaviour
 
     IEnumerator StartSequence()
     {
+        GetComponent<GameInput>().enabled = false;
         for(int i = 3; i > 0; i--)
         {
             UIManager.UISystem.ChangeStartText(i + "");
@@ -80,6 +81,7 @@ public class GameLogic : MonoBehaviour
         UIManager.UISystem.ChangeStartText("");
         Paused = false;
         mGameStatus = State.Game;
+        GetComponent<GameInput>().enabled = true;
     }
 
     void FixedUpdate()
@@ -147,8 +149,10 @@ public class GameLogic : MonoBehaviour
     }
 
     private IEnumerator FadeOut(float fadeoutTime, int iterations = 100)
-    {    
-        for(int i = 0; i < iterations; i++)
+    {
+        MusicManager.ChangeMusic();
+        
+        for (int i = 0; i < iterations; i++)
         {
             Fadeout.color = new Color(0, 0, 0, (float)(i+1) / iterations);
             yield return new WaitForSeconds(fadeoutTime / iterations);

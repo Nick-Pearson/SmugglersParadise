@@ -23,6 +23,7 @@ public class UITabbing : MonoBehaviour {
         //special case for the takeoff tab
         if(id == 3 && mActiveTab == 3)
         {
+            MusicManager.ChangeMusic(); //change the music
             SceneManager.LoadScene("Game");
         }
 

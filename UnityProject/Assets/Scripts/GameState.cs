@@ -6,7 +6,7 @@ using System;
 //it must inherit from mono behaviour to survive a level reload...
 public class GameState : MonoBehaviour {
     //version refers to the version of the savegame
-    public const int VERSION = 1;
+    public const string VERSION = "1.2";
 
     private static string mGameName;
 

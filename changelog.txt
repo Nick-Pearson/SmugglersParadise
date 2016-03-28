@@ -4,4 +4,11 @@ FIX
  - Menu would continuously grow when clicked
  - UI text rescaling
  - Added tooltips to some buttons
- - Updated UI for Cargo, Damage
+ - Updated UI for Cargo, Damage, Fuel, Money
+ - Added commas to money display
+ - Stopped taking off before the countdown
+
+ADD
+===
+ - Added background music
+ - Added sound effects

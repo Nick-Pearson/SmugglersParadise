@@ -32,5 +32,16 @@ public class DamageReciever : MonoBehaviour {
         }
         else if (gameObject.tag == "Enemy" && CurrentHealth <= 0)
             ObsticalFactory.Return(gameObject);
+
+        //Play some sounds
+        if(isPlayer)
+        {
+            if(val >= 2)
+                SFXManager.PlaySound(SFXManager.Sound.Big_Hit);
+            else if (val >= 1)
+                SFXManager.PlaySound(SFXManager.Sound.Medium_Hit);
+            else if (val >= 0)
+                SFXManager.PlaySound(SFXManager.Sound.Small_Hit);
+        }
     }
 }

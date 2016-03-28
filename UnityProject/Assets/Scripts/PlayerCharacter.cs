@@ -179,5 +179,11 @@ public class PlayerCharacter : MonoBehaviour
     public void UpdateThrottle(float val)
     {
         PlayerThrustPercentage = val;
+
+        if (val > 0)
+            GetComponent<AudioSource>().mute = false;
+        else
+            GetComponent<AudioSource>().mute = true;
+
     }
 }

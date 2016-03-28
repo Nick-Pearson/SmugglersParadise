@@ -2,13 +2,13 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class Weapon : MonoBehaviour 
+public class Weapon : MonoBehaviour
 {
-	[SerializeField] private Material BulletMaterial; 
-	[SerializeField] private float BulletScale = 0.5f; 
-	[SerializeField] private float RechargeTime = 0.25f; 
+	[SerializeField] private Material BulletMaterial;
+	[SerializeField] private float BulletScale = 0.5f;
+	[SerializeField] private float RechargeTime = 0.25f;
 	[Range( 1, 100 )]
-	[SerializeField] private int BulletPoolSize = 10; 
+	[SerializeField] private int BulletPoolSize = 10;
 
 	private GameObject [] mPool;
 	private List<GameObject> mActive;
@@ -42,8 +42,8 @@ public class Weapon : MonoBehaviour
 
 	void Update()
 	{
-		// Update the position of each active bullet, keep a track of bullets which have gone off screen 
-		List<GameObject> oldBullets = new List<GameObject>(); 
+		// Update the position of each active bullet, keep a track of bullets which have gone off screen
+		List<GameObject> oldBullets = new List<GameObject>();
 		for( int count = 0; count < mActive.Count; count++ )
 		{
 			Vector3 position = mActive[count].transform.position;
@@ -52,7 +52,7 @@ public class Weapon : MonoBehaviour
 			if( position.y > GameLogic.ScreenTop )
 			{
 				mActive[count].SetActive( false );
-				oldBullets.Add( mActive[count] ); 
+				oldBullets.Add( mActive[count] );
 			}
 		}
 
@@ -61,7 +61,7 @@ public class Weapon : MonoBehaviour
 		{
             oldBullets[count].transform.parent = transform;
             mActive.Remove(oldBullets[count]);
-			mInactive.Add( oldBullets[count] ); 
+			mInactive.Add( oldBullets[count] );
 		}
 
 		if( mCharging > 0.0f )
@@ -80,7 +80,7 @@ public class Weapon : MonoBehaviour
             bullet.transform.parent = null;
             bullet.transform.position = position;
 			bullet.SetActive( true );
-            
+
             bullet.GetComponent<BoxCollider2D>().enabled = true;
 
             if(bullet.GetComponent<MeshRenderer>() != null) //the bullet may not have a mesh renderer yet
@@ -90,7 +90,9 @@ public class Weapon : MonoBehaviour
 			mInactive.Remove( bullet );
 			mCharging = RechargeTime;
 			result = true;
-		}
+
+            SFXManager.PlaySound(SFXManager.Sound.Gun);
+        }
 
 		// Returns true if a free bullet was found and fired
 		return result;

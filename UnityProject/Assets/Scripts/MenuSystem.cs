@@ -110,7 +110,7 @@ public class MenuSystem : MonoBehaviour {
         FuelText.text = "Re-Fuel (cr. " + GameState.RefuelCost + ")";
         RepairText.text = "Repair (cr. " + GameState.RepairCost + ")";
         ShipNameText.text = GameState.ShipName;
-        MoneyText.text = "cr. " + GameState.PlayerMoney;
+        ChangeMoney(0);
 
         //populate the dropdown menu with the planets we can fly to
         List<Dropdown.OptionData> options = new List<Dropdown.OptionData>();
@@ -567,7 +567,7 @@ public class MenuSystem : MonoBehaviour {
     void ChangeMoney(int amount)
     {
         GameState.PlayerMoney += amount;
-        MoneyText.text = "cr. " + GameState.PlayerMoney;
+        MoneyText.text = string.Format("{0:n0}", GameState.PlayerMoney);
     }
 
     void ToggleEmptys(bool show)

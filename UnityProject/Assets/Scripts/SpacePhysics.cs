@@ -68,12 +68,6 @@ public class SpacePhysics : MonoBehaviour {
             return;
         }
 
-        //update camera position if necassary
-        if (mVirtualHeight < 8)
-        {
-            mGameplayCamera.transform.Translate(0, -mVelocity * GameLogic.GameDeltaTime, 0);
-        }
-
         //basic collision detection on planet
         mVirtualHeight += mVelocity * GameLogic.GameFixedDeltaTime;
         if (mVirtualHeight <= 0.0f)
